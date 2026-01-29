@@ -5,7 +5,7 @@ Matrix emptyMatrix(int rows, int columns)
 	int i;
 	Matrix final;
 	final.data = NULL;
-	final.data = (rowArr)malloc(sizeof(row) * rows);
+	final.data = (rowArr)malloc(sizeof(Row) * rows);
 	if (final.data == NULL) { printf("\nColumns creation error\n"); final.rows = 0; final.columns = 0; }
 	else
 	{
@@ -13,14 +13,14 @@ Matrix emptyMatrix(int rows, int columns)
 		final.columns = columns;
 		for (i = 0; final.data != NULL && i < rows; i++)
 		{
-			final.data[i] = (row)malloc(sizeof(matrix_el) * columns);
+			final.data[i] = (Row)malloc(sizeof(Melem) * columns);
 			if (final.data[i] == NULL) { printf("\nRow n.%d creation error\n", i); }
 		}
 	}
 	return final;
 }
 
-void matrixAddRow(Matrix* empty, row rowToInsert, int rowToChange)
+void matrixAddRow(Matrix* empty, Row rowToInsert, int rowToChange)
 {
 	int i;
 	for (i = 0; i < empty->columns; i++)
@@ -140,7 +140,7 @@ Vect emptyVect(int dim)
 	Vect result;
 	result.data = NULL;
 	result.dim = 0;
-	result.data = (matrix_el*)malloc(sizeof(matrix_el) * dim);
+	result.data = (Melem*)malloc(sizeof(Melem) * dim);
 	if (result.data == NULL) { printf("\nVector creation error\n"); }
 	else
 		result.dim = dim;
@@ -192,9 +192,7 @@ Vect linearApp(Vect v, Matrix m)
 		{
 			result.data[i] = 0;
 			for (j = 0; j < m.columns; j++)
-			{
 				result.data[i] += (v.data[j] * m.data[i][j]);
-			}
 		}
 	}
 	return result;
@@ -217,9 +215,7 @@ Matrix matrixProd(Matrix m1, Matrix m2)
 			{
 				product.data[i][j] = 0;
 				for (k = 0; k < m1.rows; k++)
-				{
 					product.data[i][j] += m1.data[i][k] * m2.data[k][j];
-				}
 			}
 		}
 	}
@@ -236,28 +232,26 @@ Vect columnToVect(Matrix m, int column)
 	return result;
 }
 
-Vect rowToVect(Matrix m, int row)
+Vect rowToVect(Matrix m, int Row)
 {
 	Vect result;
 	result = emptyVect(m.columns);
 	int i;
 	for (i = 0; i < m.columns; i++)
-		result.data[i] = m.data[row][i];
+		result.data[i] = m.data[Row][i];
 	return result;
 }
 
-matrix_el scalarProd(Vect v1, Vect v2)
+Melem scalarProd(Vect v1, Vect v2)
 {
 	int i;
-	matrix_el result = 0;
+	Melem result = 0;
 
 	if (v1.dim != v2.dim) { printf("\nIncompatible vectors\n"); }
 	else
 	{
 		for (i = 0; i < v1.dim; i++)
-		{
 			result += v1.data[i] * v2.data[i];
-		}
 	}
 	return result;
 }
@@ -265,7 +259,7 @@ matrix_el scalarProd(Vect v1, Vect v2)
 Matrix subMatrix(Matrix m, int r, int c)
 {
 	int i, j, k = 0, t = 0;
-	matrix_el elem;
+	Melem elem;
 	Matrix result;
 	result.data = NULL;
 	result.rows = 0;
@@ -290,16 +284,16 @@ Matrix subMatrix(Matrix m, int r, int c)
 	return result;
 }
 
-void sub_matrixAdd(Matrix* m, matrix_el el, int* row, int* column)
+void sub_matrixAdd(Matrix* m, Melem el, int* Row, int* column)
 {
-	m->data[*row][*column] = el;
+	m->data[*Row][*column] = el;
 	if (*column < m->columns - 1)
 		(*column)++;
 	else
 	{
-		if (*row < m->rows - 1)
+		if (*Row < m->rows - 1)
 		{
-			(*row)++;
+			(*Row)++;
 			*column = 0;
 		}
 	}
@@ -324,4 +318,49 @@ float naiveDetMatrix(Matrix m)
 		}
 	}
 	return determinante;
+}
+
+Matrix gaussJordanRed(Matrix m)
+{
+
+}
+
+void MbubbleSort(Matrix v[]) 
+{
+	int i, sorted = 0, n;
+	n = v->columns;
+	while (n > 1 && !sorted) {
+		sorted = 1;
+		for (i = 0; i < n - 1; i++)
+			if (compareRow(v->data[i], v->data[i + 1], v->columns) > 0) {
+				Mexchange(&v->data[i], &v->data[i + 1]);
+				sorted = 0;
+			}
+		n--;
+	}
+}
+
+void matrixSort(Matrix a[])
+{
+	MbubbleSort(a);
+}
+
+void Mexchange(Row* a, Row* b)
+{
+	Row tmp = *a;
+	*a = *b;
+	*b = tmp;
+}
+
+int compareRow(Row e1, Row e2, int dim)
+{
+	int result = 0, i, j;
+	float t1, t2;
+	t2 = e2[0];
+	t1 = e1[0];
+	for (i = 0; i < dim && e1[i] == 0; i++);
+	for (j = 0; j < dim && e2[j] == 0; j++);
+	
+	result = i - j;
+	return result;
 }

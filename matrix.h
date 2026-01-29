@@ -1,13 +1,39 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include "mylib.h"
+#include "stdlib.h"
+#include "stdio.h"
+#include "math.h"
+
+typedef enum {
+	false, true
+}Boolean;
+
+typedef float Melem; //matrix element
+
+typedef Melem* Row;
+
+typedef Melem* Column;
+
+typedef struct vector
+{
+	int dim;
+	Melem* data;
+}Vect;
+
+typedef Row* rowArr;
+
+typedef struct matrix
+{
+	int rows, columns;
+	rowArr data;
+}Matrix;
 
 Matrix emptyMatrix(int rows, int columns);
 
 int printMatrix(Matrix m);
 
-void matrixAddRow(Matrix* empty, row rowToInsert, int rowToChange);
+void matrixAddRow(Matrix* empty, Row rowToInsert, int rowToChange);
 
 void inputMatrix(Matrix* empty);
 
@@ -29,16 +55,23 @@ Vect linearApp(Vect v, Matrix m);
 
 Matrix matrixProd(Matrix m1, Matrix m2);
 
-matrix_el scalarProd(Vect v1, Vect v2);
+Melem scalarProd(Vect v1, Vect v2);
 
 Vect columnToVect(Matrix m, int column);
 
-Vect rowToVect(Matrix m, int row);
+Vect rowToVect(Matrix m, int Row);
 
-void sub_matrixAdd(Matrix* m, matrix_el el, int* row, int* column);
+void sub_matrixAdd(Matrix* m, Melem el, int* Row, int* column);
 
 Matrix subMatrix(Matrix m, int r, int c);
 
 float naiveDetMatrix(Matrix m);
 
+int compareRow(Row e1, Row e2, int dim);
+
+void Mexchange(Row* a, Row* b);
+
+void MbubbleSort(Matrix v[]);
+
+void matrixSort(Matrix a[]);
 #endif

@@ -8,9 +8,9 @@ int main(void)
 	float vettore1[3] = {1, 0, -1};
 	float vettore2[3] = {2, 1, 8};
 
-	float r1[3] = {1, 0, -1};
+	float r1[3] = {0, 7, -1};
 	float r2[3] = {2, 3, 2};
-	float r3[3] = {2, 6, 4};
+	float r3[3] = {0, 0, 4};
 
 	float r4[3] = {2, 0, -3};
 	float r5[3] = {1, 1, 3};
@@ -23,7 +23,7 @@ int main(void)
 	float r11[5] = {-3, 6, 3, 22, 9};
 	Vect v, w;
 	Matrix m1, m2, result, m1Sub, m1SubSub, m3;
-	matrix_el n;
+	Melem n;
 	float detM;
 
 	m1 = emptyMatrix(r, c);
@@ -53,6 +53,9 @@ int main(void)
 	defineVect(w, vettore2);
 
 	printf("Matrice 1:\n");
+	printMatrix(m1);
+	matrixSort(&m1);
+	printf("Matrice 1 ordinata:\n");
 	printMatrix(m1);
 	printf("Matrice 2:\n");
 	printMatrix(m2);
