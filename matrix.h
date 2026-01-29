@@ -74,4 +74,7 @@ void Mexchange(Row* a, Row* b);
 void MbubbleSort(Matrix v[]);
 
 void matrixSort(Matrix a[]);
+
+Boolean isTriangular(Matrix m);
+
 #endif

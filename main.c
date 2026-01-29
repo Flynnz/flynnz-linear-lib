@@ -9,12 +9,12 @@ int main(void)
 	float vettore2[3] = {2, 1, 8};
 
 	float r1[3] = {0, 7, -1};
-	float r2[3] = {2, 3, 2};
+	float r2[3] = {1, 3, 2};
 	float r3[3] = {0, 0, 4};
 
-	float r4[3] = {2, 0, -3};
-	float r5[3] = {1, 1, 3};
-	float r6[3] = {8, 7, 1};
+	float r4[4] = {0, 1, -3, 0};
+	float r5[4] = {0, 0, 3, 1};
+	float r6[4] = {8, 7, 1, 3};
 
 	float r7[5] = { 3, 9, -3,-2, 4 };
 	float r8[5] = {1, 67, 3, 9, 4};
@@ -27,7 +27,7 @@ int main(void)
 	float detM;
 
 	m1 = emptyMatrix(r, c);
-	m2 = emptyMatrix(r, c);
+	m2 = emptyMatrix(r, c + 1);
 
 	m3 = emptyMatrix(5, 5);
 	matrixAddRow(&m1, r1, 0);
@@ -54,9 +54,6 @@ int main(void)
 
 	printf("Matrice 1:\n");
 	printMatrix(m1);
-	matrixSort(&m1);
-	printf("Matrice 1 ordinata:\n");
-	printMatrix(m1);
 	printf("Matrice 2:\n");
 	printMatrix(m2);
 	printf("Matrice 3:\n");
@@ -65,6 +62,9 @@ int main(void)
 	printMatrix(m1Sub);
 	printf("Submatrice della submatrice 1:\n");
 	printMatrix(m1SubSub);
+	matrixSort(&m2);
+	printf("Matrice 2 ordinata:\n");
+	printMatrix(m2);
 
 
 	printf("Vettore 1:\n");
@@ -79,6 +79,7 @@ int main(void)
 	detM = naiveDetMatrix(m3);
 	printf("Determinante matrice 3: %.2f", detM);
 	printf("\n");
+
 
 	result = matrixProd(m1, m2);
 	printMatrix(result);

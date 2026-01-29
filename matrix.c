@@ -320,15 +320,15 @@ float naiveDetMatrix(Matrix m)
 	return determinante;
 }
 
-Matrix gaussJordanRed(Matrix m)
+Matrix gaussJordan(Matrix m)
 {
-
+	//WIP
 }
 
 void MbubbleSort(Matrix v[]) 
 {
 	int i, sorted = 0, n;
-	n = v->columns;
+	n = v->rows;
 	while (n > 1 && !sorted) {
 		sorted = 1;
 		for (i = 0; i < n - 1; i++)
@@ -355,12 +355,45 @@ void Mexchange(Row* a, Row* b)
 int compareRow(Row e1, Row e2, int dim)
 {
 	int result = 0, i, j;
-	float t1, t2;
-	t2 = e2[0];
-	t1 = e1[0];
+
 	for (i = 0; i < dim && e1[i] == 0; i++);
 	for (j = 0; j < dim && e2[j] == 0; j++);
 	
 	result = i - j;
 	return result;
+}
+
+Boolean isTriangular(Matrix m)
+{
+	Boolean notUpper = false;
+	Boolean notLower = false;
+
+	if (m.rows != m.columns)
+		return false;
+	else
+	{
+		// Check upper triangular
+		for (int i = 1; i < m.rows && !notUpper; i++)
+		{
+			for (int j = 0; j < i; j++)
+			{
+				if (m.data[i][j] != 0)
+					notUpper = true;
+			}
+		}
+
+		if (!notUpper)
+			return true;
+
+		// Check lower triangular
+		for (int i = 0; i < m.rows - 1 && !notLower; i++)
+		{
+			for (int j = i + 1; j < m.columns; j++)
+			{
+				if (m.data[i][j] != 0)
+					notLower = true;
+			}
+		}
+	}
+	return !notLower;
 }
