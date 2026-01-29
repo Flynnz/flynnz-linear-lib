@@ -39,6 +39,6 @@ void sub_matrixAdd(Matrix* m, matrix_el el, int* row, int* column);
 
 Matrix subMatrix(Matrix m, int r, int c);
 
-float detMatrix(Matrix m);
+float naiveDetMatrix(Matrix m);
 
 #endif

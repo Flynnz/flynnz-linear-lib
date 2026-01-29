@@ -73,7 +73,7 @@ int main(void)
 	n = scalarProd(v, w);
 	printf("Prodotto scalare: %.2f", n);
 	printf("\n");
-	detM = detMatrix(m3);
+	detM = naiveDetMatrix(m3);
 	printf("Determinante matrice 3: %.2f", detM);
 	printf("\n");
 

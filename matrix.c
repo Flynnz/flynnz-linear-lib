@@ -305,7 +305,7 @@ void sub_matrixAdd(Matrix* m, matrix_el el, int* row, int* column)
 	}
 }
 
-float detMatrix(Matrix m)
+float naiveDetMatrix(Matrix m)
 {
 	int i = m.columns - 1;
 	float determinante = 0;
@@ -318,7 +318,7 @@ float detMatrix(Matrix m)
 		{
 			while (i >= 0)
 			{
-				determinante += m.data[m.rows - 1][i] * (float)pow(-1, m.rows - 1 + i) * detMatrix(subMatrix(m, m.rows - 1, i));
+				determinante += m.data[m.rows - 1][i] * (float)pow(-1, m.rows - 1 + i) * naiveDetMatrix(subMatrix(m, m.rows - 1, i));
 				i--;
 			}
 		}
