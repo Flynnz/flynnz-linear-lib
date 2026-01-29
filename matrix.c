@@ -1,0 +1,327 @@
+#include "matrix.h"
+
+Matrix emptyMatrix(int rows, int columns)
+{
+	int i;
+	Matrix final;
+	final.data = NULL;
+	final.data = (rowArr)malloc(sizeof(row) * rows);
+	if (final.data == NULL) { printf("\nColumns creation error\n"); final.rows = 0; final.columns = 0; }
+	else
+	{
+		final.rows = rows;
+		final.columns = columns;
+		for (i = 0; final.data != NULL && i < rows; i++)
+		{
+			final.data[i] = (row)malloc(sizeof(matrix_el) * columns);
+			if (final.data[i] == NULL) { printf("\nRow n.%d creation error\n", i); }
+		}
+	}
+	return final;
+}
+
+void matrixAddRow(Matrix* empty, row rowToInsert, int rowToChange)
+{
+	int i;
+	for (i = 0; i < empty->columns; i++)
+		empty->data[rowToChange][i] = rowToInsert[i];
+}
+
+void inputMatrix(Matrix* empty)
+{
+	int i = 0, j;
+
+	printf("Max number of rows: %d\n", empty->rows);
+	while (i < empty->rows)
+	{
+		printf("Insert row n.%d\n", i + 1);
+		for (j = 0; j < empty->columns; j++)
+			scanf_s("%f", &(empty->data[i][j]));
+		i++;
+	}
+}
+
+int printMatrix(Matrix m)
+{
+	int i, j, k = 0;
+	if (m.data == NULL || m.rows == 0 || m.columns == 0)
+		printf("NULL");
+	else
+	{
+		for (i = 0; i < m.rows; i++)
+		{
+			printf("|");
+			for (j = 0; j < m.columns; j++)
+			{
+				if ((m.data[i])[j] > 10.0 || (m.data[i])[j] < 0.0)
+					printf("  %.2f", (m.data[i])[j]);
+				else
+					printf("   %.2f", (m.data[i])[j]);
+
+				k++;
+			}
+			printf("   |");
+			printf("\n");
+		}
+	}
+	return k;
+}
+
+int freeMatrix(Matrix m)
+{
+	int i, k = 0;
+	for (i = 0; i < m.rows; i++)
+	{
+		free(m.data[i]);
+		k++;
+	}
+	free(m.data);
+	return k;
+}
+
+Matrix matrixSum(Matrix m1, Matrix m2)
+{
+	Matrix result;
+	int i, j;
+
+	if ((m1.rows != m2.rows) || (m1.columns != m2.columns))
+	{
+		result.data = NULL;
+		printf("\n!Incompatible matrices!\n");
+	}
+	else
+	{
+		result = emptyMatrix(m1.rows, m1.columns);
+		if (result.data == NULL) { printf("\nMatrix creation error\n"); }
+		else
+		{
+			for (i = 0; i < m1.rows; i++)
+			{
+				for (j = 0; j < m1.columns; j++)
+				{
+					result.data[i][j] = m1.data[i][j] + m2.data[i][j];
+				}
+			}
+		}
+	}
+	return result;
+}
+
+Matrix matrixSub(Matrix m1, Matrix m2)
+{
+	Matrix result;
+	int i, j;
+
+	if ((m1.rows != m2.rows) || (m1.columns != m2.columns))
+	{
+		result.data = NULL;
+		printf("\n!Incompatible matrices!\n");
+	}
+	else
+	{
+		result = emptyMatrix(m1.rows, m1.columns);
+		if (result.data == NULL) { printf("\nMatrix creation error\n"); }
+		else
+		{
+			for (i = 0; i < m1.rows; i++)
+			{
+				for (j = 0; j < m1.columns; j++)
+				{
+					result.data[i][j] = m1.data[i][j] - m2.data[i][j];
+				}
+			}
+		}
+	}
+	return result;
+}
+
+Vect emptyVect(int dim)
+{
+	Vect result;
+	result.data = NULL;
+	result.dim = 0;
+	result.data = (matrix_el*)malloc(sizeof(matrix_el) * dim);
+	if (result.data == NULL) { printf("\nVector creation error\n"); }
+	else
+		result.dim = dim;
+	return result;
+}
+
+int defineVect(Vect empty, float arr[])
+{
+	int i;
+	for (i = 0; i < empty.dim; i++)
+	{
+		float test = empty.data[i];
+		empty.data[i] = arr[i];
+	}
+	return i;
+}
+
+void freeVect(Vect v)
+{
+	free(v.data);
+}
+
+int printVect(Vect v)
+{
+	int i;
+	printf("( ");
+	for (i = 0; i < v.dim; i++)
+	{
+		printf("%.2f ", v.data[i]);
+		if (i < v.dim - 1)
+			printf(", ");
+	}
+	printf(")");
+	return i;
+}
+
+Vect linearApp(Vect v, Matrix m)
+{
+	Vect result;
+	int i, j;
+	result.data = NULL;
+	result.dim = 0;
+
+	if (v.dim != m.columns) { printf("\nImpossible application\n"); }
+	else
+	{
+		result = emptyVect(v.dim);
+		for (i = 0; i < m.rows; i++)
+		{
+			result.data[i] = 0;
+			for (j = 0; j < m.columns; j++)
+			{
+				result.data[i] += (v.data[j] * m.data[i][j]);
+			}
+		}
+	}
+	return result;
+}
+
+Matrix matrixProd(Matrix m1, Matrix m2)
+{
+	Matrix product;
+	int i, j , k;
+	product.data = NULL;
+	product.rows = 0;
+	product.columns = 0;
+	if ((m1.columns != m2.rows) || (m2.columns != m1.rows)) { printf("\n!Incompatible matrices!\n"); }
+	else
+	{
+		product = emptyMatrix(m1.rows, m2.columns);
+		for (i = 0; i < m1.rows; i++)
+		{
+			for (j = 0; j < m1.columns; j++)
+			{
+				product.data[i][j] = 0;
+				for (k = 0; k < m1.rows; k++)
+				{
+					product.data[i][j] += m1.data[i][k] * m2.data[k][j];
+				}
+			}
+		}
+	}
+	return product;
+}
+
+Vect columnToVect(Matrix m, int column)
+{
+	Vect result;
+	result = emptyVect(m.rows);
+	int i;
+	for (i = 0; i < m.rows; i++)
+		result.data[i] = m.data[i][column];
+	return result;
+}
+
+Vect rowToVect(Matrix m, int row)
+{
+	Vect result;
+	result = emptyVect(m.columns);
+	int i;
+	for (i = 0; i < m.columns; i++)
+		result.data[i] = m.data[row][i];
+	return result;
+}
+
+matrix_el scalarProd(Vect v1, Vect v2)
+{
+	int i;
+	matrix_el result = 0;
+
+	if (v1.dim != v2.dim) { printf("\nIncompatible vectors\n"); }
+	else
+	{
+		for (i = 0; i < v1.dim; i++)
+		{
+			result += v1.data[i] * v2.data[i];
+		}
+	}
+	return result;
+}
+
+Matrix subMatrix(Matrix m, int r, int c)
+{
+	int i, j, k = 0, t = 0;
+	matrix_el elem;
+	Matrix result;
+	result.data = NULL;
+	result.rows = 0;
+	result.columns = 0;
+
+	if (m.rows != m.columns) { printf("\nCofactor not allowed\n"); }
+	else
+	{
+		result = emptyMatrix(m.rows - 1, m.columns - 1);
+		for (i = 0; i < m.rows; i++)
+		{
+			for (j = 0; j < m.rows; j++)
+			{
+				if (i != r && j != c)
+				{
+					elem = m.data[i][j];
+					sub_matrixAdd(&result, elem, &k, &t);
+				}
+			}
+		}
+	}
+	return result;
+}
+
+void sub_matrixAdd(Matrix* m, matrix_el el, int* row, int* column)
+{
+	m->data[*row][*column] = el;
+	if (*column < m->columns - 1)
+		(*column)++;
+	else
+	{
+		if (*row < m->rows - 1)
+		{
+			(*row)++;
+			*column = 0;
+		}
+	}
+}
+
+float detMatrix(Matrix m)
+{
+	int i = m.columns - 1;
+	float determinante = 0;
+	if (m.rows != m.columns) { printf("\nDeterminant not allowed\n"); }
+	else
+	{
+		if (m.rows == 1)
+			return m.data[0][0];
+		else
+		{
+			while (i >= 0)
+			{
+				determinante += m.data[m.rows - 1][i] * (float)pow(-1, m.rows - 1 + i) * detMatrix(subMatrix(m, m.rows - 1, i));
+				i--;
+			}
+		}
+	}
+	return determinante;
+}

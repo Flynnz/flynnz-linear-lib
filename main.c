@@ -1,0 +1,88 @@
+#include "functions.h"
+#include "matrix.h"
+
+int main(void)
+{
+	int dim = 3;
+	int r = 3, c = 3;
+	float vettore1[3] = {1, 0, -1};
+	float vettore2[3] = {2, 1, 8};
+
+	float r1[3] = {1, 0, -1};
+	float r2[3] = {2, 3, 2};
+	float r3[3] = {2, 6, 4};
+
+	float r4[3] = {2, 0, -3};
+	float r5[3] = {1, 1, 3};
+	float r6[3] = {8, 7, 1};
+
+	float r7[5] = { 3, 9, -3,-2, 4 };
+	float r8[5] = {1, 67, 3, 9, 4};
+	float r9[5] = {8, 9, -12, 2, 1};
+	float r10[5] = {43, 7, 1, 2, 2};
+	float r11[5] = {-3, 6, 3, 22, 9};
+	Vect v, w;
+	Matrix m1, m2, result, m1Sub, m1SubSub, m3;
+	matrix_el n;
+	float detM;
+
+	m1 = emptyMatrix(r, c);
+	m2 = emptyMatrix(r, c);
+
+	m3 = emptyMatrix(5, 5);
+	matrixAddRow(&m1, r1, 0);
+	matrixAddRow(&m1, r2, 1);
+	matrixAddRow(&m1, r3, 2);
+
+	v = emptyVect(dim);
+	w = emptyVect(dim);
+
+	matrixAddRow(&m3, r7, 0);
+	matrixAddRow(&m3, r8, 1);
+	matrixAddRow(&m3, r9, 2);
+	matrixAddRow(&m3, r10, 3);
+	matrixAddRow(&m3, r11, 4);
+
+	matrixAddRow(&m2, r4, 0);
+	matrixAddRow(&m2, r5, 1);
+	matrixAddRow(&m2, r6, 2);
+	m1Sub = subMatrix(m1, 1, 1);
+	m1SubSub = subMatrix(m1Sub, 1, 1);
+
+	defineVect(v, vettore1);
+	defineVect(w, vettore2);
+
+	printf("Matrice 1:\n");
+	printMatrix(m1);
+	printf("Matrice 2:\n");
+	printMatrix(m2);
+	printf("Matrice 3:\n");
+	printMatrix(m3);
+	printf("Submatrice 1:\n");
+	printMatrix(m1Sub);
+	printf("Submatrice della submatrice 1:\n");
+	printMatrix(m1SubSub);
+
+
+	printf("Vettore 1:\n");
+	printVect(v);
+	printf("\n");
+	printf("Vettore 2:\n");
+	printVect(w);
+	printf("\n");
+	n = scalarProd(v, w);
+	printf("Prodotto scalare: %.2f", n);
+	printf("\n");
+	detM = detMatrix(m3);
+	printf("Determinante matrice 3: %.2f", detM);
+	printf("\n");
+
+	result = matrixProd(m1, m2);
+	printMatrix(result);
+
+	freeVect(v);
+	freeVect(w);
+	freeMatrix(m1);
+	freeMatrix(m2);
+	return 0;
+}
