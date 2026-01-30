@@ -322,7 +322,11 @@ float naiveDetMatrix(Matrix m)
 
 Matrix gaussJordan(Matrix m)
 {
-	//WIP
+	if (isRowEchelon(m)) { return m; }
+	else
+	{
+
+	}
 }
 
 void MbubbleSort(Matrix v[]) 
@@ -396,4 +400,24 @@ Boolean isTriangular(Matrix m)
 		}
 	}
 	return !notLower;
+}
+
+Boolean isRowEchelon(Matrix m)
+{
+	Boolean itIs = true;
+	int i, j, count, max = 0;
+	for (i = 0; i < m.rows && itIs; i++)
+	{
+		count = 0;
+		for (j = 0; j < m.columns; j++)
+		{
+			if (m.data[i][j] == 0)
+				count++;
+		}
+		if (count > max)
+			max = count;
+		else
+			itIs = false;
+	}
+	return itIs;
 }

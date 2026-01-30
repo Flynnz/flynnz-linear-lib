@@ -77,4 +77,6 @@ void matrixSort(Matrix a[]);
 
 Boolean isTriangular(Matrix m);
 
+Boolean isRowEchelon(Matrix m);
+
 #endif

@@ -12,9 +12,9 @@ int main(void)
 	float r2[3] = {1, 3, 2};
 	float r3[3] = {0, 0, 4};
 
-	float r4[4] = {0, 1, -3, 0};
+	float r4[4] = {1, 1, -3, 0};
 	float r5[4] = {0, 0, 3, 1};
-	float r6[4] = {8, 7, 1, 3};
+	float r6[4] = {9, 0, 0, 3};
 
 	float r7[5] = { 3, 9, -3,-2, 4 };
 	float r8[5] = {1, 67, 3, 9, 4};
@@ -46,6 +46,7 @@ int main(void)
 	matrixAddRow(&m2, r4, 0);
 	matrixAddRow(&m2, r5, 1);
 	matrixAddRow(&m2, r6, 2);
+
 	m1Sub = subMatrix(m1, 1, 1);
 	m1SubSub = subMatrix(m1Sub, 1, 1);
 
@@ -58,29 +59,39 @@ int main(void)
 	printMatrix(m2);
 	printf("Matrice 3:\n");
 	printMatrix(m3);
+
+	//test sottomatrice
 	printf("Submatrice 1:\n");
 	printMatrix(m1Sub);
 	printf("Submatrice della submatrice 1:\n");
 	printMatrix(m1SubSub);
 	matrixSort(&m2);
+
+	//test ordinamento righe matrice
 	printf("Matrice 2 ordinata:\n");
 	printMatrix(m2);
 
+	//è in scala?
+	Boolean rowEch = isRowEchelon(m2);
 
+	//stampa vettori
 	printf("Vettore 1:\n");
 	printVect(v);
 	printf("\n");
 	printf("Vettore 2:\n");
 	printVect(w);
 	printf("\n");
+	//test prodotto scalare
 	n = scalarProd(v, w);
 	printf("Prodotto scalare: %.2f", n);
 	printf("\n");
+
+	//test determinante con sviluppo di Laplace
 	detM = naiveDetMatrix(m3);
 	printf("Determinante matrice 3: %.2f", detM);
 	printf("\n");
 
-
+	//test moltiplicazione tra matrici
 	result = matrixProd(m1, m2);
 	printMatrix(result);
 
@@ -88,5 +99,6 @@ int main(void)
 	freeVect(w);
 	freeMatrix(m1);
 	freeMatrix(m2);
+	freeMatrix(m3);
 	return 0;
 }
