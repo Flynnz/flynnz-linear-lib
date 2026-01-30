@@ -377,8 +377,9 @@ Row gaussJordanS(Row r, Row sub, int dim)
 	return result;
 }
 
-Row gaussJordanM(Row r, float multi, int dim)
-{
+Row gaussJordanM(Row r, float multi, int dim) //Instead of doing all of this its much simplier to iterate over every element of the copied
+											  //sorted matrix and subtract the elem above with a multiplier applied (prevElem/prevElem * nextElem) (remember to avoid division by 0, set default multiplier to 1)
+{											  //once it is found (once) use for every next element in the array
 	int i, nonZeroI = 0;
 	Row result = NULL;
 	result = (Row)malloc(sizeof(Melem) * dim);
