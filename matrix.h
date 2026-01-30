@@ -79,4 +79,12 @@ Boolean isTriangular(Matrix m);
 
 Boolean isRowEchelon(Matrix m);
 
+Row gaussJordanM(Row r, float multi, int dim);
+
+Row gaussJordanS(Row r, Row sub, int dim);
+
+Matrix gaussJordan(Matrix m);
+
+void fillMatrix(Matrix* m, Melem n);
+
 #endif

@@ -322,12 +322,77 @@ float naiveDetMatrix(Matrix m)
 
 Matrix gaussJordan(Matrix m)
 {
+	int i = 0;
+	Matrix result = emptyMatrix(m.rows, m.columns);
+	fillMatrix(&result, 1);
+	matrixSort(&m); //note to self: it may be better to work on a copy of m, for that purpose i need a copyMatrix() function
 	if (isRowEchelon(m)) { return m; }
 	else
 	{
+			printf("\nOrdinato:\n");
+			printMatrix(m);
+		while (!isRowEchelon(result))
+		{
+			free(result.data[i]);
+			result.data[i] = gaussJordanM(m.data[i], m.data[i + 1][0], m.columns);
+			if (i < m.columns - 1) //better logic: just create a copy of m and check if its in rowechelon every iteration, replace every
+								   //line one by one except the first one (reminder: it should be already ordered)
+								   //reset "i" every time it gets to the end so it continues until its n rowechelon
+			{
+				free(result.data[i + 1]);
+				result.data[i + 1] = gaussJordanS(m.data[i + 1], result.data[i], m.columns);
+			}
+			i++;
+			i++; //ts logic is doo doo ass garbage and it doesnt work im tired ima modify it tomorrow ^^^
+		}
+			printf("\n");
+			printMatrix(result);
+	}
+	return result;
+}
 
+void fillMatrix(Matrix* m, Melem n)
+{
+	int i, j;
+	for (i = 0; i < m->rows; i++)
+	{
+		for (j = 0; j < m->columns; j++)
+		{
+			m->data[i][j] = n;
+		}
 	}
 }
+
+Row gaussJordanS(Row r, Row sub, int dim)
+{
+	int i;
+	Row result = NULL;
+	result = (Row)malloc(sizeof(Melem) * dim);
+	if (result == NULL) { printf("\nAllocation error in Gauss Jordan elim\n"); }
+	else
+	{
+		for (i = 0; i < dim; i++)
+			result[i] = r[i] - sub[i];
+	}
+	return result;
+}
+
+Row gaussJordanM(Row r, float multi, int dim)
+{
+	int i, nonZeroI = 0;
+	Row result = NULL;
+	result = (Row)malloc(sizeof(Melem) * dim);
+	if (result == NULL) { printf("\nAllocation error in Gauss Jordan elim\n"); }
+	else
+	{
+		for (i = 0; r[i] == 0 && i < dim; i++, nonZeroI++);
+		for (i = 0; i < dim && r[nonZeroI] != 0; i++)
+			result[i] = (r[i] * multi) / r[0];
+	}
+	return result;
+}
+
+
 
 void MbubbleSort(Matrix v[]) 
 {

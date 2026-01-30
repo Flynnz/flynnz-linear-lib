@@ -95,10 +95,17 @@ int main(void)
 	result = matrixProd(m1, m2);
 	printMatrix(result);
 
+	//test Gauss Jordan
+	Matrix inScala = emptyMatrix(3, 4);
+	
+	inScala = gaussJordan(m2);
+	printMatrix(inScala);
+
 	freeVect(v);
 	freeVect(w);
 	freeMatrix(m1);
 	freeMatrix(m2);
 	freeMatrix(m3);
+	freeMatrix(inScala);
 	return 0;
 }
