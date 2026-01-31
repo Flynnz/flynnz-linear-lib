@@ -45,7 +45,7 @@ int printMatrix(Matrix m)
 {
 	int i, j, k = 0;
 	if (m.data == NULL || m.rows == 0 || m.columns == 0)
-		printf("NULL");
+		printf("NULL\n");
 	else
 	{
 		for (i = 0; i < m.rows; i++)
@@ -322,34 +322,44 @@ float naiveDetMatrix(Matrix m)
 
 Matrix gaussJordan(Matrix m)
 {
-	int i = 0;
-	Matrix result = emptyMatrix(m.rows, m.columns);
-	fillMatrix(&result, 1);
-	matrixSort(&m); //note to self: it may be better to work on a copy of m, for that purpose i need a copyMatrix() function
-	if (isRowEchelon(m)) { return m; }
+	int i, j, k, pivot, pivotRow = 1;
+	float multiplier = 1;
+	Matrix copy = copyMatrix(m);
+	
+	matrixSort(&copy);
+	if (isRowEchelon(copy)) { return copy; }
 	else
 	{
-			printf("\nOrdinato:\n");
-			printMatrix(m);
-		while (!isRowEchelon(result))
+		i = 1;
+		while (!isRowEchelon(copy))
 		{
-			free(result.data[i]);
-			result.data[i] = gaussJordanM(m.data[i], m.data[i + 1][0], m.columns);
-			if (i < m.columns - 1) //better logic: just create a copy of m and check if its in rowechelon every iteration, replace every
-								   //line one by one except the first one (reminder: it should be already ordered)
-								   //reset "i" every time it gets to the end so it continues until its n rowechelon
+			for (k = 0; k < copy.columns && copy.data[i - 1][k] == 0; k++); //find pivot index
+			pivot = k;
+			pivotRow = i;
+			while (pivot != copy.columns && i < copy.rows)
 			{
-				free(result.data[i + 1]);
-				result.data[i + 1] = gaussJordanS(m.data[i + 1], result.data[i], m.columns);
+				if (copy.data[i][pivot] != 0)
+				{
+					//float pivot;
+					multiplier = copy.data[i][pivot] / copy.data[pivotRow - 1][pivot];
+					//pivot = (copy.data[pivotRow - 1][pivot]);
+					for (j = 0; j < copy.columns; j++)
+					{
+						copy.data[i][j] -= multiplier * copy.data[pivotRow - 1][j];
+						//if (copy.data[pivotRow - 1][j] != 0)
+						//	copy.data[pivotRow - 1][j] = copy.data[pivotRow - 1][j] / pivot; !! For RREF
+					}
+				}
+				i++;
 			}
+			i = pivotRow;
 			i++;
-			i++; //ts logic is doo doo ass garbage and it doesnt work im tired ima modify it tomorrow ^^^
+			matrixSort(&copy);
 		}
-			printf("\n");
-			printMatrix(result);
 	}
-	return result;
+	return copy;
 }
+
 
 void fillMatrix(Matrix* m, Melem n)
 {
@@ -391,6 +401,23 @@ Row gaussJordanM(Row r, float multi, int dim) //Instead of doing all of this its
 			result[i] = (r[i] * multi) / r[0];
 	}
 	return result;
+}
+
+Matrix copyMatrix(Matrix m)
+{
+	Matrix r = emptyMatrix(m.rows, m.columns);
+	int i, j;
+
+	if (m.rows == 0 || m.columns == 0) { r.data = NULL; }
+	else
+	{
+		for (i = 0; i < m.rows; i++)
+		{
+			for (j = 0; j < m.columns; j++)
+				r.data[i][j] = m.data[i][j];
+		}
+	}
+	return r;
 }
 
 
@@ -471,7 +498,7 @@ Boolean isTriangular(Matrix m)
 Boolean isRowEchelon(Matrix m)
 {
 	Boolean itIs = true;
-	int i, j, count, max = 0;
+	int i, j, count, max = -1;
 	for (i = 0; i < m.rows && itIs; i++)
 	{
 		count = 0;

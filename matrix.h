@@ -87,4 +87,6 @@ Matrix gaussJordan(Matrix m);
 
 void fillMatrix(Matrix* m, Melem n);
 
+Matrix copyMatrix(Matrix m);
+
 #endif

@@ -12,15 +12,15 @@ int main(void)
 	float r2[3] = {1, 3, 2};
 	float r3[3] = {0, 0, 4};
 
-	float r4[4] = {1, 1, -3, 0};
-	float r5[4] = {0, 0, 3, 1};
-	float r6[4] = {9, 0, 0, 3};
+	float r4[4] = {1, 1, 1, 1};
+	float r5[4] = {1, 2, -1, 0};
+	float r6[4] = {-1, 1, 2, 1};
 
-	float r7[5] = { 3, 9, -3,-2, 4 };
-	float r8[5] = {1, 67, 3, 9, 4};
-	float r9[5] = {8, 9, -12, 2, 1};
-	float r10[5] = {43, 7, 1, 2, 2};
-	float r11[5] = {-3, 6, 3, 22, 9};
+	float r7[5] = { 1, 9, -3,-2, 4 };
+	float r8[5] = {0, 67, 3, 9, 4};
+	float r9[5] = {0, 0, -12, 2, 1};
+	float r10[5] = {0, 0, 0, 0, 0};
+	float r11[5] = {1, 6, 3, 22, 9};
 	Vect v, w;
 	Matrix m1, m2, result, m1Sub, m1SubSub, m3;
 	Melem n;
@@ -96,9 +96,9 @@ int main(void)
 	printMatrix(result);
 
 	//test Gauss Jordan
-	Matrix inScala = emptyMatrix(3, 4);
+	Matrix inScala;
 	
-	inScala = gaussJordan(m2);
+	inScala = gaussJordan(m3);
 	printMatrix(inScala);
 
 	freeVect(v);
