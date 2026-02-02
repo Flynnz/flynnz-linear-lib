@@ -17,9 +17,9 @@ int main(void)
 	float r6[4] = {-1, 1, 2, 1};
 
 	float r7[5] = { 1, 9, -3,-2, 4 };
-	float r8[5] = {0, 67, 3, 9, 4};
-	float r9[5] = {0, 0, -12, 2, 1};
-	float r10[5] = {0, 0, 0, 0, 0};
+	float r8[5] = {9, 67, 3, 9, 4};
+	float r9[5] = {5, 0, -12, 2, 1};
+	float r10[5] = {-2, 2, 0, 0, 0};
 	float r11[5] = {1, 6, 3, 22, 9};
 	Vect v, w;
 	Matrix m1, m2, result, m1Sub, m1SubSub, m3;
@@ -87,7 +87,7 @@ int main(void)
 	printf("\n");
 
 	//test determinante con sviluppo di Laplace
-	detM = naiveDetMatrix(m3);
+	detM = detMatrix(m3);
 	printf("Determinante matrice 3: %.2f", detM);
 	printf("\n");
 

@@ -265,7 +265,7 @@ Matrix subMatrix(Matrix m, int r, int c)
 	result.rows = 0;
 	result.columns = 0;
 
-	if (m.rows != m.columns) { printf("\nCofactor not allowed\n"); }
+	if (m.rows != m.columns) { printf("\nSubmatrix not allowed\n"); }
 	else
 	{
 		result = emptyMatrix(m.rows - 1, m.columns - 1);
@@ -299,7 +299,7 @@ void sub_matrixAdd(Matrix* m, Melem el, int* Row, int* column)
 	}
 }
 
-float naiveDetMatrix(Matrix m)
+float laplaceDetMatrix(Matrix m)
 {
 	int i = m.columns - 1;
 	float determinante = 0;
@@ -312,7 +312,7 @@ float naiveDetMatrix(Matrix m)
 		{
 			while (i >= 0)
 			{
-				determinante += m.data[m.rows - 1][i] * (float)pow(-1, m.rows - 1 + i) * naiveDetMatrix(subMatrix(m, m.rows - 1, i));
+				determinante += m.data[m.rows - 1][i] * (float)pow(-1, m.rows - 1 + i) * laplaceDetMatrix(subMatrix(m, m.rows - 1, i));
 				i--;
 			}
 		}
@@ -320,46 +320,150 @@ float naiveDetMatrix(Matrix m)
 	return determinante;
 }
 
-Matrix gaussJordan(Matrix m)
+float detMatrix(Matrix m)
 {
-	int i, j, k, pivot, pivotRow = 1;
+	int i, mult = 1;
+	float det = 1;
+	if (m.rows != m.columns || m.data == NULL || m.rows == 0 || m.columns == 0)
+		printf("\nDeterminant not allowed\n");
+	else
+	{
+		Matrix reduced = gaussJordanDet(m, &mult);
+		if (rankMatrix(reduced) == m.columns)
+		{
+			for (i = 0; i < m.columns; i++)
+				det *= reduced.data[i][i];
+		}
+		freeMatrix(reduced);
+	}
+	if (det != 0)
+		det = mult * det;
+	return det;
+}
+
+int rankMatrix(Matrix m)
+{
+	int i, j = 0;
+	for (i = 0; i < m.rows; i++)
+		if (!zeroRow(m.data[i], m.columns))
+			j++;
+	return j;
+}
+
+Matrix bruteGaussJordan(Matrix m)
+{
+	int i = 1, j, k, pivot, pivotRow = 1;
 	float multiplier = 1;
 	Matrix copy = copyMatrix(m);
 	
 	matrixSort(&copy);
-	if (isRowEchelon(copy)) { return copy; }
-	else
+	while (i < m.rows && !isRowEchelon(copy))
 	{
-		i = 1;
-		while (!isRowEchelon(copy))
+		for (k = 0; k < copy.columns && copy.data[i][k] == 0; k++); //find pivot index
+		pivot = k;
+		pivotRow = i;
+		while (pivot != copy.columns && i < copy.rows)
 		{
-			for (k = 0; k < copy.columns && copy.data[i - 1][k] == 0; k++); //find pivot index
-			pivot = k;
-			pivotRow = i;
-			while (pivot != copy.columns && i < copy.rows)
+			if (copy.data[i][pivot] != 0)
 			{
-				if (copy.data[i][pivot] != 0)
+				//float pivot;
+				multiplier = copy.data[i][pivot] / copy.data[pivotRow - 1][pivot];
+				//pivot = (copy.data[pivotRow - 1][pivot]);
+				for (j = 0; j < copy.columns; j++)
 				{
-					//float pivot;
-					multiplier = copy.data[i][pivot] / copy.data[pivotRow - 1][pivot];
-					//pivot = (copy.data[pivotRow - 1][pivot]);
-					for (j = 0; j < copy.columns; j++)
-					{
-						copy.data[i][j] -= multiplier * copy.data[pivotRow - 1][j];
-						//if (copy.data[pivotRow - 1][j] != 0)
-						//	copy.data[pivotRow - 1][j] = copy.data[pivotRow - 1][j] / pivot; !! For RREF
-					}
+					copy.data[i][j] -= multiplier * copy.data[pivotRow - 1][j];
+					//if (copy.data[pivotRow - 1][j] != 0)
+					//	copy.data[pivotRow - 1][j] = copy.data[pivotRow - 1][j] / pivot; !! For RREF
 				}
-				i++;
 			}
-			i = pivotRow;
 			i++;
-			matrixSort(&copy);
 		}
+		i = pivotRow;
+		i++;
+		matrixSort(&copy);
+		//printf("\n...\n");
+		//printMatrix(copy);
 	}
 	return copy;
 }
 
+Matrix gaussJordan(Matrix m)
+{
+	Matrix c = copyMatrix(m);
+	int pivot, pivotR;
+	int i, j, k;
+	float factor = 0;
+	for (k = 0; k < c.rows - 1; k++)
+	{
+		pivotR = k;
+		pivot = c.columns - 1;
+		for (i = k; i < c.rows; i++)
+		{
+			for (j = 0; j < c.columns && c.data[i][j] == 0; j++);
+			if (j < pivot) //pivot found
+			{
+				pivot = j;
+				pivotR = i;
+			}
+		}
+		if (pivotR != k) //if not in "top" row, exchange
+			Mexchange(&c.data[pivotR], &c.data[k]);
+		pivotR = k; //now it is in "top" row
+		for (i = k + 1; i < c.rows; i++)
+		{
+			factor = (c.data[i][pivot] / c.data[pivotR][pivot]);
+			for (j = 0; j < c.columns; j++)
+				c.data[i][j] -= factor * c.data[k][j];
+		}
+	}
+	return c;
+}
+
+Matrix gaussJordanDet(Matrix m, int* exchanges)
+{
+	Matrix c = copyMatrix(m);
+	int pivot, pivotR;
+	int i, j, k;
+	float factor = 0;
+	*exchanges = 1;
+	for (k = 0; k < c.rows - 1; k++)
+	{
+		pivotR = k;
+		pivot = c.columns - 1;
+		for (i = k; i < c.rows; i++)
+		{
+			for (j = 0; j < c.columns && c.data[i][j] == 0; j++);
+			if (j < pivot) //pivot found
+			{
+				pivot = j;
+				pivotR = i;
+			}
+		}
+		if (pivotR != k) //if not in "top" row, exchange
+		{
+			Mexchange(&c.data[pivotR], &c.data[k]);
+			*exchanges *= -1;
+		}
+		pivotR = k; //now it is in "top" row
+		for (i = k + 1; i < c.rows; i++)
+		{
+			factor = (c.data[i][pivot] / c.data[pivotR][pivot]);
+			for (j = 0; j < c.columns; j++)
+				c.data[i][j] -= factor * c.data[k][j];
+		}
+	}
+	return c;
+}
+
+Boolean zeroRow(Row r, int dim)
+{
+	int j;
+	Boolean zero = true;
+	for (j = 0; j < dim && zero; j++)
+		if (r[j] != 0)
+			zero = false;
+	return zero;
+}
 
 void fillMatrix(Matrix* m, Melem n)
 {
@@ -371,36 +475,6 @@ void fillMatrix(Matrix* m, Melem n)
 			m->data[i][j] = n;
 		}
 	}
-}
-
-Row gaussJordanS(Row r, Row sub, int dim)
-{
-	int i;
-	Row result = NULL;
-	result = (Row)malloc(sizeof(Melem) * dim);
-	if (result == NULL) { printf("\nAllocation error in Gauss Jordan elim\n"); }
-	else
-	{
-		for (i = 0; i < dim; i++)
-			result[i] = r[i] - sub[i];
-	}
-	return result;
-}
-
-Row gaussJordanM(Row r, float multi, int dim) //Instead of doing all of this its much simplier to iterate over every element of the copied
-											  //sorted matrix and subtract the elem above with a multiplier applied (prevElem/prevElem * nextElem) (remember to avoid division by 0, set default multiplier to 1)
-{											  //once it is found (once) use for every next element in the array
-	int i, nonZeroI = 0;
-	Row result = NULL;
-	result = (Row)malloc(sizeof(Melem) * dim);
-	if (result == NULL) { printf("\nAllocation error in Gauss Jordan elim\n"); }
-	else
-	{
-		for (i = 0; r[i] == 0 && i < dim; i++, nonZeroI++);
-		for (i = 0; i < dim && r[nonZeroI] != 0; i++)
-			result[i] = (r[i] * multi) / r[0];
-	}
-	return result;
 }
 
 Matrix copyMatrix(Matrix m)
@@ -420,26 +494,28 @@ Matrix copyMatrix(Matrix m)
 	return r;
 }
 
-
-
-void MbubbleSort(Matrix v[]) 
+int MbubbleSort(Matrix v[]) 
 {
-	int i, sorted = 0, n;
+	int i, sorted = 0, n, exchanged = 1;;
 	n = v->rows;
 	while (n > 1 && !sorted) {
 		sorted = 1;
 		for (i = 0; i < n - 1; i++)
-			if (compareRow(v->data[i], v->data[i + 1], v->columns) > 0) {
+			if (compareRow(v->data[i], v->data[i + 1], v->columns) > 0) 
+			{
 				Mexchange(&v->data[i], &v->data[i + 1]);
 				sorted = 0;
+				exchanged *= -1;
 			}
 		n--;
 	}
+	return exchanged;
 }
 
-void matrixSort(Matrix a[])
+int matrixSort(Matrix a[])
 {
-	MbubbleSort(a);
+	int exchanged = MbubbleSort(a);
+	return exchanged;
 }
 
 void Mexchange(Row* a, Row* b)
@@ -498,17 +574,19 @@ Boolean isTriangular(Matrix m)
 Boolean isRowEchelon(Matrix m)
 {
 	Boolean itIs = true;
-	int i, j, count, max = -1;
+	int i, j, count = 0, max = -1;
 	for (i = 0; i < m.rows && itIs; i++)
 	{
-		count = 0;
 		for (j = 0; j < m.columns; j++)
 		{
 			if (m.data[i][j] == 0)
 				count++;
 		}
 		if (count > max)
+		{
 			max = count;
+			count = 0;
+		}
 		else
 			itIs = false;
 	}

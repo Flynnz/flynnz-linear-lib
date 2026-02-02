@@ -65,28 +65,34 @@ void sub_matrixAdd(Matrix* m, Melem el, int* Row, int* column);
 
 Matrix subMatrix(Matrix m, int r, int c);
 
-float naiveDetMatrix(Matrix m);
+float laplaceDetMatrix(Matrix m);
 
 int compareRow(Row e1, Row e2, int dim);
 
 void Mexchange(Row* a, Row* b);
 
-void MbubbleSort(Matrix v[]);
+int MbubbleSort(Matrix v[]);
 
-void matrixSort(Matrix a[]);
+int matrixSort(Matrix a[]);
 
 Boolean isTriangular(Matrix m);
 
 Boolean isRowEchelon(Matrix m);
 
-Row gaussJordanM(Row r, float multi, int dim);
+Boolean zeroRow(Row r, int dim);
 
-Row gaussJordanS(Row r, Row sub, int dim);
+int rankMatrix(Matrix m);
+
+Matrix bruteGaussJordan(Matrix m);
 
 Matrix gaussJordan(Matrix m);
+
+Matrix gaussJordanDet(Matrix m, int* exchanges);
 
 void fillMatrix(Matrix* m, Melem n);
 
 Matrix copyMatrix(Matrix m);
+
+float detMatrix(Matrix m);
 
 #endif
