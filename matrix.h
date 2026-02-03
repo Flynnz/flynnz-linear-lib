@@ -89,6 +89,8 @@ Matrix gaussJordan(Matrix m);
 
 Matrix gaussJordanDet(Matrix m, int* exchanges);
 
+int rankMatrix(Matrix m);
+
 void fillMatrix(Matrix* m, Melem n);
 
 Matrix copyMatrix(Matrix m);

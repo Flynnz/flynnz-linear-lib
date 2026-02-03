@@ -341,6 +341,15 @@ float detMatrix(Matrix m)
 	return det;
 }
 
+int rankMatrix(Matrix m)
+{
+	int rank = 0;
+	Matrix c = emptyMatrix(m.rows, m.columns);
+	c = gaussJordan(m);
+	rank = nonZeroRows(m);
+	return rank;
+}
+
 int nonZeroRows(Matrix m)
 {
 	int i, j = 0;

@@ -18,7 +18,7 @@ int main(void)
 
 	float r7[5] = { 1, 9, -3,-2, 4 };
 	float r8[5] = {9, 67, 3, 9, 4};
-	float r9[5] = {5, 0, -12, 2, 1};
+	float r9[5] = {18, 134, 6, 18, 8};
 	float r10[5] = {-2, 2, 0, 0, 0};
 	float r11[5] = {1, 6, 3, 22, 9};
 	Vect v, w;
@@ -100,6 +100,10 @@ int main(void)
 	
 	inScala = gaussJordan(m3);
 	printMatrix(inScala);
+
+	//test rango matrice
+	int rank = rankMatrix(inScala);
+	printf("\nRango m3: %d\n", rank);
 
 	freeVect(v);
 	freeVect(w);
