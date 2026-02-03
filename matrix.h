@@ -81,7 +81,7 @@ Boolean isRowEchelon(Matrix m);
 
 Boolean zeroRow(Row r, int dim);
 
-int rankMatrix(Matrix m);
+int nonZeroRows(Matrix m);
 
 Matrix bruteGaussJordan(Matrix m);
 

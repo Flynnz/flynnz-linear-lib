@@ -329,7 +329,7 @@ float detMatrix(Matrix m)
 	else
 	{
 		Matrix reduced = gaussJordanDet(m, &mult);
-		if (rankMatrix(reduced) == m.columns)
+		if (nonZeroRows(reduced) == m.columns)
 		{
 			for (i = 0; i < m.columns; i++)
 				det *= reduced.data[i][i];
@@ -341,7 +341,7 @@ float detMatrix(Matrix m)
 	return det;
 }
 
-int rankMatrix(Matrix m)
+int nonZeroRows(Matrix m)
 {
 	int i, j = 0;
 	for (i = 0; i < m.rows; i++)
