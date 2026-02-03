@@ -9,16 +9,16 @@ typedef enum {
 	false, true
 }Boolean;
 
-typedef float Melem; //matrix element
+typedef float Mel; //matrix element
 
-typedef Melem* Row;
+typedef Mel* Row;
 
-typedef Melem* Column;
+typedef Mel* Column;
 
 typedef struct vector
 {
 	int dim;
-	Melem* data;
+	Mel* data;
 }Vect;
 
 typedef Row* rowArr;
@@ -55,13 +55,13 @@ Vect linearApp(Vect v, Matrix m);
 
 Matrix matrixProd(Matrix m1, Matrix m2);
 
-Melem scalarProd(Vect v1, Vect v2);
+Mel scalarProd(Vect v1, Vect v2);
 
 Vect columnToVect(Matrix m, int column);
 
 Vect rowToVect(Matrix m, int Row);
 
-void sub_matrixAdd(Matrix* m, Melem el, int* Row, int* column);
+void sub_matrixAdd(Matrix* m, Mel el, int* Row, int* column);
 
 Matrix subMatrix(Matrix m, int r, int c);
 
@@ -83,15 +83,23 @@ Boolean zeroRow(Row r, int dim);
 
 int nonZeroRows(Matrix m);
 
-Matrix bruteGaussJordan(Matrix m);
+Matrix rowEchelon(Matrix m);
 
-Matrix gaussJordan(Matrix m);
+Matrix reducedRowEch(Matrix m);
 
-Matrix gaussJordanDet(Matrix m, int* exchanges);
+Matrix inverseMatrix(Matrix m);
+
+void findPivot(int start, Matrix c, int* pivot, int* pivotR);
+
+void identityCreate(Matrix* empty);
+
+Matrix identityMatrix(int rows, int columns);
+
+Matrix rowEchDet(Matrix m, int* exchanges);
 
 int rankMatrix(Matrix m);
 
-void fillMatrix(Matrix* m, Melem n);
+void fillMatrix(Matrix* m, Mel n);
 
 Matrix copyMatrix(Matrix m);
 
