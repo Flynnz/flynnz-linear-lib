@@ -4,9 +4,8 @@ Matrix emptyMatrix(int rows, int columns)
 {
 	int i;
 	Matrix final;
-	final.data = NULL;
 	final.data = (rowArr)malloc(sizeof(Row) * rows);
-	if (final.data == NULL) { printf("\nColumns creation error\n"); final.rows = 0; final.columns = 0; }
+	if (final.data == NULL) { printf("\nRows creation error\n"); final.rows = 0; final.columns = 0; }
 	else
 	{
 		final.rows = rows;
@@ -30,7 +29,6 @@ void matrixAddRow(Matrix* empty, Row rowToInsert, int rowToChange)
 void inputMatrix(Matrix* empty)
 {
 	int i = 0, j;
-
 	printf("Max number of rows: %d\n", empty->rows);
 	while (i < empty->rows)
 	{
@@ -53,15 +51,18 @@ int printMatrix(Matrix m)
 			printf("|");
 			for (j = 0; j < m.columns; j++)
 			{
-				if ((m.data[i])[j] > 10.0 || (m.data[i])[j] < 0.0)
-					printf("  %.2f", (m.data[i])[j]);
+				if (m.data[i][j] >= 10.0 || (m.data[i][j] < 0.0 && m.data[i][j] > -10.0))
+					printf("  %.2f", m.data[i][j]);
 				else
-					printf("   %.2f", (m.data[i])[j]);
-
+				{
+					if (m.data[i][j] >= 100.0 || m.data[i][j] <= -10.0)
+						printf(" %.2f", m.data[i][j]);
+					else
+						printf("   %.2f", m.data[i][j]);
+				}
 				k++;
 			}
-			printf("   |");
-			printf("\n");
+			printf("   |\n");
 		}
 	}
 	return k;
@@ -69,40 +70,30 @@ int printMatrix(Matrix m)
 
 int freeMatrix(Matrix m)
 {
-	int i, k = 0;
+	int i;
 	for (i = 0; i < m.rows; i++)
-	{
 		free(m.data[i]);
-		k++;
-	}
 	free(m.data);
-	return k;
+	return i;
 }
 
 Matrix matrixSum(Matrix m1, Matrix m2)
 {
 	Matrix result;
 	int i, j;
-
+	result.rows = 0;
+	result.columns = 0;
+	result.data = NULL;
 	if ((m1.rows != m2.rows) || (m1.columns != m2.columns))
-	{
-		result.data = NULL;
 		printf("\n!Incompatible matrices!\n");
-	}
 	else
 	{
 		result = emptyMatrix(m1.rows, m1.columns);
 		if (result.data == NULL) { printf("\nMatrix creation error\n"); }
 		else
-		{
 			for (i = 0; i < m1.rows; i++)
-			{
 				for (j = 0; j < m1.columns; j++)
-				{
 					result.data[i][j] = m1.data[i][j] + m2.data[i][j];
-				}
-			}
-		}
 	}
 	return result;
 }
@@ -111,26 +102,19 @@ Matrix matrixSub(Matrix m1, Matrix m2)
 {
 	Matrix result;
 	int i, j;
-
+	result.rows = 0;
+	result.columns = 0;
+	result.data = NULL;
 	if ((m1.rows != m2.rows) || (m1.columns != m2.columns))
-	{
-		result.data = NULL;
 		printf("\n!Incompatible matrices!\n");
-	}
 	else
 	{
 		result = emptyMatrix(m1.rows, m1.columns);
 		if (result.data == NULL) { printf("\nMatrix creation error\n"); }
 		else
-		{
 			for (i = 0; i < m1.rows; i++)
-			{
 				for (j = 0; j < m1.columns; j++)
-				{
 					result.data[i][j] = m1.data[i][j] - m2.data[i][j];
-				}
-			}
-		}
 	}
 	return result;
 }
@@ -138,7 +122,6 @@ Matrix matrixSub(Matrix m1, Matrix m2)
 Vect emptyVect(int dim)
 {
 	Vect result;
-	result.data = NULL;
 	result.dim = 0;
 	result.data = (Mel*)malloc(sizeof(Mel) * dim);
 	if (result.data == NULL) { printf("\nVector creation error\n"); }
@@ -147,14 +130,13 @@ Vect emptyVect(int dim)
 	return result;
 }
 
-int defineVect(Vect empty, float arr[])
+int defineVect(Vect empty, float arr[], int dimArr)
 {
-	int i;
-	for (i = 0; i < empty.dim; i++)
-	{
-		float test = empty.data[i];
-		empty.data[i] = arr[i];
-	}
+	int i = 0;
+	if (dimArr != empty.dim) { printf("\nArray size doesn't match vector size\n"); }
+	else
+		for (i; i < empty.dim; i++)
+			empty.data[i] = arr[i];
 	return i;
 }
 
@@ -166,14 +148,14 @@ void freeVect(Vect v)
 int printVect(Vect v)
 {
 	int i;
-	printf("( ");
+	printf("| ");
 	for (i = 0; i < v.dim; i++)
 	{
 		printf("%.2f ", v.data[i]);
 		if (i < v.dim - 1)
 			printf(", ");
 	}
-	printf(")");
+	printf("|");
 	return i;
 }
 
@@ -184,7 +166,7 @@ Vect linearApp(Vect v, Matrix m)
 	result.data = NULL;
 	result.dim = 0;
 
-	if (v.dim != m.columns) { printf("\nImpossible application\n"); }
+	if (v.dim != m.columns) { printf("\nIncompatible application\n"); }
 	else
 	{
 		result = emptyVect(v.dim);
@@ -201,7 +183,7 @@ Vect linearApp(Vect v, Matrix m)
 Matrix matrixProd(Matrix m1, Matrix m2)
 {
 	Matrix product;
-	int i, j , k;
+	int i, j, k;
 	product.data = NULL;
 	product.rows = 0;
 	product.columns = 0;
@@ -222,30 +204,30 @@ Matrix matrixProd(Matrix m1, Matrix m2)
 	return product;
 }
 
-Vect columnToVect(Matrix m, int column)
+Vect columnToVect(Matrix m, int columnNumber)
 {
 	Vect result;
 	result = emptyVect(m.rows);
 	int i;
 	for (i = 0; i < m.rows; i++)
-		result.data[i] = m.data[i][column];
+		result.data[i] = m.data[i][columnNumber];
 	return result;
 }
 
-Vect rowToVect(Matrix m, int Row)
+Vect rowToVect(Matrix m, int rowNumber)
 {
 	Vect result;
 	result = emptyVect(m.columns);
 	int i;
 	for (i = 0; i < m.columns; i++)
-		result.data[i] = m.data[Row][i];
+		result.data[i] = m.data[rowNumber][i];
 	return result;
 }
 
 Mel scalarProd(Vect v1, Vect v2)
 {
 	int i;
-	Mel result = 0;
+	Mel result = -1000;
 
 	if (v1.dim != v2.dim) { printf("\nIncompatible vectors\n"); }
 	else
@@ -284,16 +266,16 @@ Matrix subMatrix(Matrix m, int r, int c)
 	return result;
 }
 
-void sub_matrixAdd(Matrix* m, Mel el, int* Row, int* column)
+void sub_matrixAdd(Matrix* m, Mel el, int* row, int* column)
 {
-	m->data[*Row][*column] = el;
+	m->data[*row][*column] = el;
 	if (*column < m->columns - 1)
 		(*column)++;
 	else
 	{
-		if (*Row < m->rows - 1)
+		if (*column == m->columns - 1 && *row < m->rows - 1)
 		{
-			(*Row)++;
+			(*row)++;
 			*column = 0;
 		}
 	}
@@ -302,8 +284,8 @@ void sub_matrixAdd(Matrix* m, Mel el, int* Row, int* column)
 float laplaceDetMatrix(Matrix m)
 {
 	int i = m.columns - 1;
-	float determinante = 0;
-	if (m.rows != m.columns) { printf("\nDeterminant not allowed\n"); }
+	float determinant = 0;
+	if (rankMatrix(m) != m.rows) { printf("\nDeterminant not allowed\n"); }
 	else
 	{
 		if (m.rows == 1)
@@ -312,20 +294,19 @@ float laplaceDetMatrix(Matrix m)
 		{
 			while (i >= 0)
 			{
-				determinante += m.data[m.rows - 1][i] * (float)pow(-1, m.rows - 1 + i) * laplaceDetMatrix(subMatrix(m, m.rows - 1, i));
+				determinant += m.data[m.rows - 1][i] * (float)pow(-1, m.rows - 1 + i) * laplaceDetMatrix(subMatrix(m, m.rows - 1, i));
 				i--;
 			}
 		}
 	}
-	return determinante;
+	return determinant;
 }
 
 float detMatrix(Matrix m)
 {
 	int i, mult = 1;
 	float det = 1;
-	if (m.rows != m.columns || m.data == NULL || m.rows == 0 || m.columns == 0)
-		printf("\nDeterminant not allowed\n");
+	if (rankMatrix(m) != m.rows) { printf("\nDeterminant not allowed\n"); }
 	else
 	{
 		Matrix reduced = rowEchDet(m, &mult);
@@ -407,12 +388,8 @@ Matrix rowEchelon(Matrix m)
 	if (isRowEchelon(c)) { return c; }
 	else
 	{
-		for (k = 0; k < c.rows - 1; k++)
+		for (k = 0; k < c.rows - 1 && findPivot(k, c, &pivot, &pivotR); k++)
 		{
-			pivotR = k;
-			pivot = c.columns - 1;
-			findPivot(k, c, &pivot, &pivotR);
-
 			if (pivotR != k) //if not in "top" row, exchange
 				Mexchange(&c.data[pivotR], &c.data[k]);
 			pivotR = k; //now it is in "top" row
@@ -423,7 +400,7 @@ Matrix rowEchelon(Matrix m)
 				else
 					factor = 0;
 
-				for (j = 0; j < c.columns; j++)
+				for (j = pivot; j < c.columns; j++)
 					c.data[i][j] -= factor * c.data[k][j];
 			}
 		}
@@ -471,78 +448,70 @@ Matrix identityMatrix(int rows, int columns)
 	return identity;
 }
 
-Matrix inverseMatrix(Matrix m)
+void op_gaussJordan(Matrix* c, Matrix* inverse)
 {
-	Matrix c = copyMatrix(m);
-
-	if (rankMatrix(m) != m.rows) { printf("\nInverse not allowed\n"); return emptyMatrix(m.rows, m.columns); }
-	else
+	int k, i, j, pivot = 0, pivotR = 0;
+	float factor = 0, norma = 1;
+	for (k = 0; k < c->rows - 1 && findPivot(k, *c, &pivot, &pivotR); k++)
 	{
-		Matrix inverse = identityMatrix(m.rows, m.columns);
-		int pivot, pivotR;
-		int i, j, k;
-		float factor = 0, norma = 1, multi = 1;
-		for (k = 0; k < c.rows - 1; k++)
+		if (pivotR != k) //if not in "top" row, exchange
 		{
-			pivotR = k;
-			pivot = c.columns - 1;
-			findPivot(k, c, &pivot, &pivotR);
-
-			if (pivotR != k) //if not in "top" row, exchange
+			Mexchange(&(c->data[pivotR]), &(c->data[k]));
+			Mexchange(&(inverse->data[pivotR]), &(inverse->data[k]));
+		}
+		pivotR = k; //now it is in "top" row
+		for (i = k + 1; i < c->rows; i++)
+		{
+			norma = c->data[pivotR][pivot];
+			if (norma != 0)
+				factor = c->data[i][pivot] / norma;
+			else { norma = 1; factor = 0; }
+				
+			for (j = 0; j < c->columns; j++)
 			{
-				Mexchange(&c.data[pivotR], &c.data[k]);
-				Mexchange(&inverse.data[pivotR], &inverse.data[k]);
-			}
-			pivotR = k; //now it is in "top" row
-			for (i = k + 1; i < c.rows; i++)
-			{
-				norma = c.data[pivotR][pivot];
-				if (norma != 0)
-					factor = c.data[i][pivot] / norma;
-				else
-				{
-					norma = 1;
-					factor = 0;
-				}
-				for (j = 0; j < c.columns; j++)
-				{
-					c.data[i][j] -= factor * c.data[k][j];
-					inverse.data[i][j] -= factor * inverse.data[k][j];
+				//row sub
+				c->data[i][j] -= factor * c->data[k][j];
+				inverse->data[i][j] -= factor * inverse->data[k][j];
 
-					//normalize
-					if (c.data[pivotR][j] != 0)
-					{
-						c.data[pivotR][j] = c.data[pivotR][j] / norma;
-					}
-					if (inverse.data[pivotR][j] != 0)
-					{
-						inverse.data[pivotR][j] = inverse.data[pivotR][j] / norma;
-					}
-				}
-			}
-			//normalize last row
-			if (pivotR + 1 == m.rows - 1)
-			{
-				for (j = 0; j < c.columns && c.data[pivotR + 1][j] == 0; j++);
-				if (j > pivot) //last pivot
-					pivot = j;
-
-				if (c.data[pivotR + 1][pivot] != 0)
-					norma = c.data[pivotR + 1][pivot];
-				else
-					norma = 1;
-
-				for (j = 0; j < c.columns; j++)
-				{
-					if (c.data[pivotR + 1][j] != 0)
-						c.data[pivotR + 1][j] = c.data[pivotR + 1][j] / norma;
-					if (inverse.data[pivotR + 1][j] != 0)
-						inverse.data[pivotR + 1][j] = inverse.data[pivotR + 1][j] / norma;
-				}
+				normalizeMel(c, pivotR, j, norma);
+				normalizeMel(inverse, pivotR, j, norma);
 			}
 		}
+		//normalize last row
+		if (pivotR + 1 == c->rows - 1 && c->data[pivotR + 1][c->rows - 1] != 1)
+		{
+			pivot = c->rows - 1;
+			norma = c->data[pivotR + 1][pivot];
 
-		//reduce c to Identity matrix
+			for (j = 0; j < c->columns; j++)
+			{
+				normalizeMel(c, pivotR + 1, j, norma);
+				normalizeMel(inverse, pivotR + 1, j, norma);
+			}
+		}
+	}
+}
+
+void normalizeMel(Matrix* m, int pivotR, int j, float norma)
+{
+	if (m->data[pivotR][j] != 0)
+		m->data[pivotR][j] = m->data[pivotR][j] / norma;
+}
+
+Matrix inverseMatrix(Matrix m)
+{
+	if (rankMatrix(m) != m.rows) { printf("\nInverse not allowed\n"); return emptyMatrix(0, 0); }
+	else
+	{
+		Matrix c = copyMatrix(m);
+		Matrix inverse = identityMatrix(m.rows, m.columns);
+		int k, i, j;
+		float multi;
+
+		//Reduces "c" to RREF while repeating the operations on "inverse" (identity matrix)
+		op_gaussJordan(&c, &inverse);
+
+		//reduce c to Identity matrix to obtain inverse 
 		for (k = c.columns - 1; k > 0; k--)
 		{
 			for (i = k; i > 0; i--)
@@ -555,7 +524,8 @@ Matrix inverseMatrix(Matrix m)
 						inverse.data[i - 1][j] -= inverse.data[k][j] * multi;
 				}
 			}
-		}				//Needs cleaning!!
+		}
+		freeMatrix(c);
 		return inverse;
 	}
 }
@@ -566,12 +536,8 @@ Matrix reducedRowEch(Matrix m)
 	int pivot, pivotR;
 	int i, j, k;
 	float factor = 0, norma = 1;
-	for (k = 0; k < c.rows - 1; k++)
+	for (k = 0; k < c.rows - 1 && findPivot(k, c, &pivot, &pivotR); k++)
 	{
-		pivotR = k;
-		pivot = c.columns - 1;
-		findPivot(k, c, &pivot, &pivotR);
-
 		if (pivotR != k) //if not in "top" row, exchange
 			Mexchange(&c.data[pivotR], &c.data[k]);
 		pivotR = k; //now it is in "top" row
@@ -580,16 +546,12 @@ Matrix reducedRowEch(Matrix m)
 			norma = c.data[pivotR][pivot];
 			if (norma != 0)
 				factor = c.data[i][pivot] / norma;
-			else
-			{
-				norma = 1;
-				factor = 0;
-			}
+			else { norma = 1; factor = 0; }
+
 			for (j = 0; j < c.columns; j++)
 			{
 				c.data[i][j] -= factor * c.data[k][j];
-				if (c.data[pivotR][j] != 0)
-					c.data[pivotR][j] = c.data[pivotR][j] / norma;
+				normalizeMel(&c, pivotR, j, norma);
 			}
 		}
 
@@ -600,34 +562,34 @@ Matrix reducedRowEch(Matrix m)
 			if (j > pivot) //last pivot
 				pivot = j;
 
-			if (c.data[pivotR + 1][pivot] != 0)
-				norma = c.data[pivotR + 1][pivot];
-			else
-				norma = 1;
-
-			for (j = 0; j < c.columns; j++)
+			if (c.data[pivotR + 1][pivot] != 0 && c.data[pivotR + 1][pivot] != 1)
 			{
-				if (c.data[pivotR + 1][j] != 0)
-					c.data[pivotR + 1][j] = c.data[pivotR + 1][j] / norma;
+				norma = c.data[pivotR + 1][pivot];
+				for (j = 0; j < c.columns; j++)
+					normalizeMel(&c, pivotR + 1, j, norma);
 			}
 		}
 	}
-
 	return c;
 }
 
-void findPivot(int start, Matrix c, int* pivot, int* pivotR)
+Boolean findPivot(int start, Matrix c, int* pivot, int* pivotR)
 {
 	int i, j;
-	for (i = start; i < c.rows; i++)
+	Boolean found = 0;
+	for (j = start; j < c.columns; j++)
 	{
-		for (j = 0; j < c.columns && c.data[i][j] == 0; j++);
-		if (j < *pivot) //pivot found
+		for (i = start; i < c.rows && !found; i++)
 		{
-			*pivot = j;
-			*pivotR = i;
+			if (c.data[i][j] != 0) //pivot found
+			{
+				*pivot = j;
+				*pivotR = i;
+				found = 1;
+			}
 		}
 	}
+	return found;
 }
 
 Matrix rowEchDet(Matrix m, int* exchanges)
@@ -637,19 +599,8 @@ Matrix rowEchDet(Matrix m, int* exchanges)
 	int i, j, k;
 	float factor = 0;
 	*exchanges = 1;
-	for (k = 0; k < c.rows - 1; k++)
+	for (k = 0; k < c.rows - 1 && findPivot(k, c, &pivot, &pivotR); k++)
 	{
-		pivotR = k;
-		pivot = c.columns - 1;
-		for (i = k; i < c.rows; i++)
-		{
-			for (j = 0; j < c.columns && c.data[i][j] == 0; j++);
-			if (j < pivot) //pivot found
-			{
-				pivot = j;
-				pivotR = i;
-			}
-		}
 		if (pivotR != k) //if not in "top" row, exchange
 		{
 			Mexchange(&c.data[pivotR], &c.data[k]);

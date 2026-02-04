@@ -14,22 +14,22 @@ int main(void)
 	float r31[3] = {3, 0, 4};
 	float r32[3] = {12, 1, 4};
 
-	float r4[4] = {9, 0, 22, 0};
-	float r5[4] = {0, 63, 0, 7};
-	float r6[4] = {-15, 0, 0, 0};
+	float r4[4] = {9, 0, 22};
+	float r5[4] = {0, 63, 0};
+	float r6[4] = {-15, 0, 0};
 
-	float r7[5] = { 1, 9, -3,-2, 4 };
+	float r7[5] = { 0, 0, 0,0, 0 };
 	float r8[5] = {9, 67, 3, 9, 4};
-	float r9[5] = {18, -13, 6, 1, 8};
-	float r10[5] = {-2, 2, 0, 0, 0};
-	float r11[5] = {1, 6, 3, 22, 9};
+	float r9[5] = {0, 0, 0, 0, 8};
+	float r10[5] = {0, 0, 0, 2, -1};
+	float r11[5] = {0, 0, 0, 1, 9};
 	Vect v, w;
 	Matrix m1, m2, result, m1Sub, m1SubSub, m3;
 	Mel n;
 	float detM;
 
 	m1 = emptyMatrix(r, c);
-	m2 = emptyMatrix(r, c + 1);
+	m2 = emptyMatrix(r, c);
 
 	m3 = emptyMatrix(5, 5);
 	matrixAddRow(&m1, r1, 0);
@@ -54,8 +54,8 @@ int main(void)
 	m1Sub = subMatrix(m1, 1, 1);
 	m1SubSub = subMatrix(m1Sub, 1, 1);
 
-	defineVect(v, vettore1);
-	defineVect(w, vettore2);
+	defineVect(v, vettore1, v.dim);
+	defineVect(w, vettore2, w.dim);
 
 	printf("Matrice 1:\n");
 	printMatrix(m1);
@@ -64,11 +64,21 @@ int main(void)
 	printf("Matrice 3:\n");
 	printMatrix(m3);
 
+	//test moltiplicazione tra matrici
+	printf("\nMoltiplicazione:\n");
+	result = matrixProd(m1, m2);
+	printMatrix(result);
+	//test somma
+	printf("\nSomma:\n");
+	result = matrixSum(m1, m2);
+	printMatrix(result);
+
 	//test sottomatrice
-	printf("Submatrice 1:\n");
+	printf("\nSubmatrice 1:\n");
 	printMatrix(m1Sub);
-	printf("Submatrice della submatrice 1:\n");
+	printf("\nSubmatrice della submatrice 1:\n");
 	printMatrix(m1SubSub);
+
 	matrixSort(&m2);
 
 	//test ordinamento righe matrice
@@ -95,19 +105,16 @@ int main(void)
 	printf("Determinante matrice 3: %.2f", detM);
 	printf("\n");
 
-	//test moltiplicazione tra matrici
-	result = matrixProd(m1, m2);
-	printMatrix(result);
-
 	//test Gauss
 	Matrix inScala;
 	
-	inScala = rowEchelon(m1);
+	printf("\nIn scala:\n");
+	inScala = rowEchelon(m3);
 	printMatrix(inScala);
 
 	//test rango matrice
 	int rank = rankMatrix(m3);
-	printf("\nRango m1: %d\n", rank);
+	printf("\nRango m3: %d\n", rank);
 
 	//test Gauss Jordan
 	Matrix RREF, inversa;

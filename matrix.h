@@ -45,7 +45,11 @@ int freeMatrix(Matrix m);
 
 Vect emptyVect(int dim);
 
-int defineVect(Vect empty, float arr[]);
+void normalizeMel(Matrix* m, int pivotR, int j, float norma);
+
+void op_gaussJordan(Matrix* c, Matrix* inverse);
+
+int defineVect(Vect empty, float arr[], int dimArr);
 
 void freeVect(Vect v);
 
@@ -89,7 +93,7 @@ Matrix reducedRowEch(Matrix m);
 
 Matrix inverseMatrix(Matrix m);
 
-void findPivot(int start, Matrix c, int* pivot, int* pivotR);
+Boolean findPivot(int start, Matrix c, int* pivot, int* pivotR);
 
 void identityCreate(Matrix* empty);
 
