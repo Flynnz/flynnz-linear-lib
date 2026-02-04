@@ -29,11 +29,13 @@ typedef struct matrix
 	rowArr data;
 }Matrix;
 
-Matrix emptyMatrix(int rows, int columns);
+//FUNCTIONS
 
-int printMatrix(Matrix m);
+Matrix emptyMatrix(int rows, int columns); //allocate the necessary space for a matrix
 
-void matrixAddRow(Matrix* empty, Row rowToInsert, int rowToChange);
+int printMatrix(Matrix m); //yeah
+
+void matrixAddRow(Matrix* empty, Row rowToInsert, int rowToChange); //use arrays to add/modify rows of a matrix
 
 void inputMatrix(Matrix* empty);
 
@@ -73,7 +75,7 @@ float laplaceDetMatrix(Matrix m);
 
 int compareRow(Row e1, Row e2, int dim);
 
-void Mexchange(Row* a, Row* b);
+void exchangeRows(Row* a, Row* b);
 
 int MbubbleSort(Matrix v[]);
 
@@ -94,8 +96,6 @@ Matrix reducedRowEch(Matrix m);
 Matrix inverseMatrix(Matrix m);
 
 Boolean findPivot(int start, Matrix c, int* pivot, int* pivotR);
-
-void identityCreate(Matrix* empty);
 
 Matrix identityMatrix(int rows, int columns);
 

@@ -340,44 +340,32 @@ int nonZeroRows(Matrix m)
 	return j;
 }
 
-/*
-Matrix bruteRowEch(Matrix m)
+Boolean isRowEchelon(Matrix m)
 {
-	int i = 1, j, k, pivot, pivotRow = 1;
-	float multiplier = 1;
-	Matrix copy = copyMatrix(m);
-	
-	matrixSort(&copy);
-	while (i < m.rows && !isRowEchelon(copy))
+	//assuming that REF also means it is sorted correctly
+	Boolean itIs = true;
+	int i, j, count = 0, max = -1;
+	for (i = 0; i < m.rows && itIs; i++)
 	{
-		for (k = 0; k < copy.columns && copy.data[i][k] == 0; k++); //find pivot index
-		pivot = k;
-		pivotRow = i;
-		while (pivot != copy.columns && i < copy.rows)
+		count = 0;
+		for (j = 0; j < m.columns; j++)
 		{
-			if (copy.data[i][pivot] != 0)
-			{
-				//float pivot;
-				multiplier = copy.data[i][pivot] / copy.data[pivotRow - 1][pivot];
-				//pivot = (copy.data[pivotRow - 1][pivot]);
-				for (j = 0; j < copy.columns; j++)
-				{
-					copy.data[i][j] -= multiplier * copy.data[pivotRow - 1][j];
-					//if (copy.data[pivotRow - 1][j] != 0)
-					//	copy.data[pivotRow - 1][j] = copy.data[pivotRow - 1][j] / pivot; !! For RREF
-				}
-			}
-			i++;
+			if (m.data[i][j] == 0)
+				count++;
 		}
-		i = pivotRow;
-		i++;
-		matrixSort(&copy);
-		//printf("\n...\n");
-		//printMatrix(copy);
+		if (count > max)
+			max = count;
+		else
+			itIs = false;
 	}
-	return copy;
+	return itIs;
 }
-*/
+
+void normalizeMel(Matrix* m, int pivotR, int j, float norma)
+{
+	if (m->data[pivotR][j] != 0)
+		m->data[pivotR][j] = m->data[pivotR][j] / norma;
+}
 
 Matrix rowEchelon(Matrix m)
 {
@@ -388,19 +376,78 @@ Matrix rowEchelon(Matrix m)
 	if (isRowEchelon(c)) { return c; }
 	else
 	{
-		for (k = 0; k < c.rows - 1 && findPivot(k, c, &pivot, &pivotR); k++)
+		for (k = 0; k < c.rows && findPivot(k, c, &pivot, &pivotR); k++)
 		{
 			if (pivotR != k) //if not in "top" row, exchange
-				Mexchange(&c.data[pivotR], &c.data[k]);
+				exchangeRows(&c.data[pivotR], &c.data[k]);
 			pivotR = k; //now it is in "top" row
 			for (i = k + 1; i < c.rows; i++)
 			{
 				if (c.data[pivotR][pivot] != 0)
+				{
 					factor = c.data[i][pivot] / c.data[pivotR][pivot];
-				else
-					factor = 0;
+					for (j = pivot; j < c.columns; j++)
+						c.data[i][j] -= factor * c.data[k][j];
+				}
+			}
+		}
+	}
+	return c;
+}
 
-				for (j = pivot; j < c.columns; j++)
+Matrix reducedRowEch(Matrix m)
+{
+	Matrix c = copyMatrix(m);
+	int pivot, pivotR;
+	int i, j, k;
+	float factor = 0, norma = 1;
+	for (k = 0; k < c.rows && findPivot(k, c, &pivot, &pivotR); k++)
+	{
+		if (pivotR != k) //if not in "top" row, exchange
+			exchangeRows(&c.data[pivotR], &c.data[k]);
+		pivotR = k; //now it is in "top" row
+
+		//normalize pivotR
+		norma = c.data[pivotR][pivot];
+		if (norma != 0 && norma != 1)
+			for (j = 0; j < c.columns; j++)
+				normalizeMel(&c, pivotR, j, norma);
+
+		for (i = k + 1; i < c.rows; i++)
+		{
+			factor = c.data[i][pivot];
+			if (factor != 0)
+			{
+				for (j = 0; j < c.columns; j++)
+					c.data[i][j] -= factor * c.data[k][j];
+			}
+
+		}
+	}
+	return c;
+}
+
+Matrix rowEchDet(Matrix m, int* exchanges)
+{
+	Matrix c = copyMatrix(m);
+	int pivot, pivotR;
+	int i, j, k;
+	float factor = 0;
+	*exchanges = 1;
+	for (k = 0; k < c.rows - 1 && findPivot(k, c, &pivot, &pivotR); k++)
+	{
+		if (pivotR != k)
+		{
+			exchangeRows(&c.data[pivotR], &c.data[k]);
+			*exchanges *= -1;
+		}
+		pivotR = k;
+		for (i = k + 1; i < c.rows; i++)
+		{
+			factor = (c.data[i][pivot] / c.data[pivotR][pivot]);
+			if (factor != 0)
+			{
+				for (j = 0; j < c.columns; j++)
 					c.data[i][j] -= factor * c.data[k][j];
 			}
 		}
@@ -408,20 +455,39 @@ Matrix rowEchelon(Matrix m)
 	return c;
 }
 
-void identityCreate(Matrix* empty)
+void op_gaussJordan(Matrix* c, Matrix* inverse)
 {
-	int i, j;
-	if (empty->rows!= empty->columns) { printf("\nIncompatible empty matrix format\n"); }
-	else
+	int k, i, j, pivot = 0, pivotR = 0;
+	float factor = 0, norma = 1;
+	for (k = 0; k < c->rows && findPivot(k, *c, &pivot, &pivotR); k++)
 	{
-		for (i = 0; i < empty->rows; i++)
+		if (pivotR != k) //if not in "top" row, exchange
 		{
-			for (j = 0; j < empty->columns; j++)
+			exchangeRows(&(c->data[pivotR]), &(c->data[k]));
+			exchangeRows(&(inverse->data[pivotR]), &(inverse->data[k]));
+		}
+		pivotR = k; //now it is in "top" row
+
+		norma = c->data[pivotR][pivot];
+		if (norma != 0 && norma != 1)
+		{
+			for (j = 0; j < c->columns; j++)
 			{
-				if (i != j)
-					empty->data[i][j] = 0;
-				else
-					empty->data[i][j] = 1;
+				normalizeMel(c, pivotR, j, norma);
+				normalizeMel(inverse, pivotR, j, norma);
+			}
+		}
+
+		for (i = k + 1; i < c->rows; i++)
+		{
+			factor = c->data[i][pivot];
+			if (factor != 0)
+			{
+				for (j = 0; j < c->columns; j++)
+				{
+					c->data[i][j] -= factor * c->data[k][j];
+					inverse->data[i][j] -= factor * inverse->data[k][j];
+				}
 			}
 		}
 	}
@@ -446,56 +512,6 @@ Matrix identityMatrix(int rows, int columns)
 		}
 	}
 	return identity;
-}
-
-void op_gaussJordan(Matrix* c, Matrix* inverse)
-{
-	int k, i, j, pivot = 0, pivotR = 0;
-	float factor = 0, norma = 1;
-	for (k = 0; k < c->rows - 1 && findPivot(k, *c, &pivot, &pivotR); k++)
-	{
-		if (pivotR != k) //if not in "top" row, exchange
-		{
-			Mexchange(&(c->data[pivotR]), &(c->data[k]));
-			Mexchange(&(inverse->data[pivotR]), &(inverse->data[k]));
-		}
-		pivotR = k; //now it is in "top" row
-		for (i = k + 1; i < c->rows; i++)
-		{
-			norma = c->data[pivotR][pivot];
-			if (norma != 0)
-				factor = c->data[i][pivot] / norma;
-			else { norma = 1; factor = 0; }
-				
-			for (j = 0; j < c->columns; j++)
-			{
-				//row sub
-				c->data[i][j] -= factor * c->data[k][j];
-				inverse->data[i][j] -= factor * inverse->data[k][j];
-
-				normalizeMel(c, pivotR, j, norma);
-				normalizeMel(inverse, pivotR, j, norma);
-			}
-		}
-		//normalize last row
-		if (pivotR + 1 == c->rows - 1 && c->data[pivotR + 1][c->rows - 1] != 1)
-		{
-			pivot = c->rows - 1;
-			norma = c->data[pivotR + 1][pivot];
-
-			for (j = 0; j < c->columns; j++)
-			{
-				normalizeMel(c, pivotR + 1, j, norma);
-				normalizeMel(inverse, pivotR + 1, j, norma);
-			}
-		}
-	}
-}
-
-void normalizeMel(Matrix* m, int pivotR, int j, float norma)
-{
-	if (m->data[pivotR][j] != 0)
-		m->data[pivotR][j] = m->data[pivotR][j] / norma;
 }
 
 Matrix inverseMatrix(Matrix m)
@@ -530,49 +546,6 @@ Matrix inverseMatrix(Matrix m)
 	}
 }
 
-Matrix reducedRowEch(Matrix m)
-{
-	Matrix c = copyMatrix(m);
-	int pivot, pivotR;
-	int i, j, k;
-	float factor = 0, norma = 1;
-	for (k = 0; k < c.rows - 1 && findPivot(k, c, &pivot, &pivotR); k++)
-	{
-		if (pivotR != k) //if not in "top" row, exchange
-			Mexchange(&c.data[pivotR], &c.data[k]);
-		pivotR = k; //now it is in "top" row
-		for (i = k + 1; i < c.rows; i++)
-		{
-			norma = c.data[pivotR][pivot];
-			if (norma != 0)
-				factor = c.data[i][pivot] / norma;
-			else { norma = 1; factor = 0; }
-
-			for (j = 0; j < c.columns; j++)
-			{
-				c.data[i][j] -= factor * c.data[k][j];
-				normalizeMel(&c, pivotR, j, norma);
-			}
-		}
-
-		//normalize last row
-		if (pivotR + 1 == m.rows - 1)
-		{
-			for (j = 0; j < c.columns && c.data[pivotR + 1][j] == 0; j++);
-			if (j > pivot) //last pivot
-				pivot = j;
-
-			if (c.data[pivotR + 1][pivot] != 0 && c.data[pivotR + 1][pivot] != 1)
-			{
-				norma = c.data[pivotR + 1][pivot];
-				for (j = 0; j < c.columns; j++)
-					normalizeMel(&c, pivotR + 1, j, norma);
-			}
-		}
-	}
-	return c;
-}
-
 Boolean findPivot(int start, Matrix c, int* pivot, int* pivotR)
 {
 	int i, j;
@@ -592,31 +565,6 @@ Boolean findPivot(int start, Matrix c, int* pivot, int* pivotR)
 	return found;
 }
 
-Matrix rowEchDet(Matrix m, int* exchanges)
-{
-	Matrix c = copyMatrix(m);
-	int pivot, pivotR;
-	int i, j, k;
-	float factor = 0;
-	*exchanges = 1;
-	for (k = 0; k < c.rows - 1 && findPivot(k, c, &pivot, &pivotR); k++)
-	{
-		if (pivotR != k) //if not in "top" row, exchange
-		{
-			Mexchange(&c.data[pivotR], &c.data[k]);
-			*exchanges *= -1;
-		}
-		pivotR = k; //now it is in "top" row
-		for (i = k + 1; i < c.rows; i++)
-		{
-			factor = (c.data[i][pivot] / c.data[pivotR][pivot]);
-			for (j = 0; j < c.columns; j++)
-				c.data[i][j] -= factor * c.data[k][j];
-		}
-	}
-	return c;
-}
-
 Boolean zeroRow(Row r, int dim)
 {
 	int j;
@@ -633,9 +581,7 @@ void fillMatrix(Matrix* m, Mel n)
 	for (i = 0; i < m->rows; i++)
 	{
 		for (j = 0; j < m->columns; j++)
-		{
 			m->data[i][j] = n;
-		}
 	}
 }
 
@@ -643,7 +589,6 @@ Matrix copyMatrix(Matrix m)
 {
 	Matrix r = emptyMatrix(m.rows, m.columns);
 	int i, j;
-
 	if (m.rows == 0 || m.columns == 0) { r.data = NULL; }
 	else
 	{
@@ -665,7 +610,7 @@ int MbubbleSort(Matrix v[])
 		for (i = 0; i < n - 1; i++)
 			if (compareRow(v->data[i], v->data[i + 1], v->columns) > 0) 
 			{
-				Mexchange(&v->data[i], &v->data[i + 1]);
+				exchangeRows(&v->data[i], &v->data[i + 1]);
 				sorted = 0;
 				exchanged *= -1;
 			}
@@ -680,7 +625,7 @@ int matrixSort(Matrix a[])
 	return exchanged;
 }
 
-void Mexchange(Row* a, Row* b)
+void exchangeRows(Row* a, Row* b)
 {
 	Row tmp = *a;
 	*a = *b;
@@ -733,24 +678,64 @@ Boolean isTriangular(Matrix m)
 	return !notLower;
 }
 
-Boolean isRowEchelon(Matrix m)
+//DEPRECATED
+
+/*
+void identityCreate(Matrix* empty)
 {
-	Boolean itIs = true;
-	int i, j, count = 0, max = -1;
-	for (i = 0; i < m.rows && itIs; i++)
+	int i, j;
+	if (empty->rows!= empty->columns) { printf("\nIncompatible empty matrix format\n"); }
+	else
 	{
-		for (j = 0; j < m.columns; j++)
+		for (i = 0; i < empty->rows; i++)
 		{
-			if (m.data[i][j] == 0)
-				count++;
+			for (j = 0; j < empty->columns; j++)
+			{
+				if (i != j)
+					empty->data[i][j] = 0;
+				else
+					empty->data[i][j] = 1;
+			}
 		}
-		if (count > max)
-		{
-			max = count;
-			count = 0;
-		}
-		else
-			itIs = false;
 	}
-	return itIs;
 }
+*/
+
+/*
+Matrix bruteRowEch(Matrix m)
+{
+	int i = 1, j, k, pivot, pivotRow = 1;
+	float multiplier = 1;
+	Matrix copy = copyMatrix(m);
+
+	matrixSort(&copy);
+	while (i < m.rows && !isRowEchelon(copy))
+	{
+		for (k = 0; k < copy.columns && copy.data[i][k] == 0; k++); //find pivot index
+		pivot = k;
+		pivotRow = i;
+		while (pivot != copy.columns && i < copy.rows)
+		{
+			if (copy.data[i][pivot] != 0)
+			{
+				//float pivot;
+				multiplier = copy.data[i][pivot] / copy.data[pivotRow - 1][pivot];
+				//pivot = (copy.data[pivotRow - 1][pivot]);
+				for (j = 0; j < copy.columns; j++)
+				{
+					copy.data[i][j] -= multiplier * copy.data[pivotRow - 1][j];
+					//if (copy.data[pivotRow - 1][j] != 0)
+					//	copy.data[pivotRow - 1][j] = copy.data[pivotRow - 1][j] / pivot; !! For RREF
+				}
+			}
+			i++;
+		}
+		i = pivotRow;
+		i++;
+		matrixSort(&copy);
+		//printf("\n...\n");
+		//printMatrix(copy);
+	}
+	return copy;
+}
+*/
