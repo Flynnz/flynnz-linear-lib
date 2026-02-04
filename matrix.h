@@ -29,84 +29,96 @@ typedef struct matrix
 	rowArr data;
 }Matrix;
 
-//FUNCTIONS
+//--------------------------------------------------------------------------------------------------------------------------------
+														//FUNCTIONS
+//--------------------------------------------------------------------------------------------------------------------------------
+
+//-------------------------------------------------------MATRICES-----------------------------------------------------------------
 
 Matrix emptyMatrix(int rows, int columns); //allocate the necessary space for a matrix
+
+void freeMatrix(Matrix m); //deallocate matrix memory from heap
 
 int printMatrix(Matrix m); //yeah
 
 void matrixAddRow(Matrix* empty, Row rowToInsert, int rowToChange); //use arrays to add/modify rows of a matrix
 
-void inputMatrix(Matrix* empty);
+void inputMatrix(Matrix* empty); //allows user to create matrix from stdin
+										
+Matrix copyMatrix(Matrix m); //returns a copy of a matrix m
 
-Matrix matrixSum(Matrix m1, Matrix m2);
+Matrix identityMatrix(int rows, int columns); //returns an identity matrix of a chosen size
 
+Matrix matrixSum(Matrix m1, Matrix m2); 
+										//matrix sum
 Matrix matrixSub(Matrix m1, Matrix m2);
 
-int freeMatrix(Matrix m);
+Matrix matrixProd(Matrix m1, Matrix m2); //matrix-matrix multiplication
 
-Vect emptyVect(int dim);
+int rankMatrix(Matrix m); //determines the rank of a matrix
 
-void normalizeMel(Matrix* m, int pivotR, int j, float norma);
+void fillMatrix(Matrix* m, Mel n); //fill an entire matrix with a chosen element
+							
+Matrix subMatrix(Matrix m, int rowToElim, int colToElim); //create a submatrix
 
-void op_gaussJordan(Matrix* c, Matrix* inverse);
+float detMatrix(Matrix m); //returns the determinant of a matrix using REF
 
-int defineVect(Vect empty, float arr[], int dimArr);
+float laplaceDetMatrix(Matrix m); //determinant using recursion (less efficient)
 
-void freeVect(Vect v);
+Matrix rowEchelon(Matrix m); //returns a copy of m in REF
 
-int printVect(Vect v);
+Matrix reducedRowEch(Matrix m); //fives a copy of m in normalized REF
 
-Vect linearApp(Vect v, Matrix m);
+Matrix inverseMatrix(Matrix m); //uses gauss-jordan elimination to find the inverse of a matrix
 
-Matrix matrixProd(Matrix m1, Matrix m2);
+int matrixSort(Matrix a[]); //sort in decreasing order
 
-Mel scalarProd(Vect v1, Vect v2);
+//---------------------------------------------------------VECTORS---------------------------------------------------------------
 
-Vect columnToVect(Matrix m, int column);
+Vect emptyVect(int dim); //allocate the necessary space for a vector
+
+void freeVect(Vect v); //deallocate vector memory from heap
+
+int defineVect(Vect empty, float arr[], int dimArr); //use an array to define a vector
+
+int printVect(Vect v); //yup
+
+Vect linearApp(Vect v, Matrix m); //matrix-vector multiplication
+
+Mel scalarProd(Vect v1, Vect v2); //scalar product between two vectors
 
 Vect rowToVect(Matrix m, int Row);
+										//converts a row/column of a matrix into a vector
+Vect columnToVect(Matrix m, int column);
 
-void sub_matrixAdd(Matrix* m, Mel el, int* Row, int* column);
+//-----------------------------------------------------------MISC--------------------------------------------------------------
+Boolean isRowEchelon(Matrix m); //yup
 
-Matrix subMatrix(Matrix m, int r, int c);
+void exchangeRows(Row* a, Row* b); //exchange two rows
 
-float laplaceDetMatrix(Matrix m);
+Boolean isTriangular(Matrix m); //check if m is triangular
 
-int compareRow(Row e1, Row e2, int dim);
+Boolean zeroRow(Row r, int dim); //check if a row is zeros-only
 
-void exchangeRows(Row* a, Row* b);
+int nonZeroRows(Matrix m); //finds the number of non-zero rows
 
-int MbubbleSort(Matrix v[]);
+//--------------------------------------------------------------------------------------------------------------------------------
+//													Not intended for user
+//--------------------------------------------------------------------------------------------------------------------------------
 
-int matrixSort(Matrix a[]);
+Matrix rowEchDet(Matrix m, int* exchanges); //the same as rowEchelon() but it counts how many exchanges were made (for detMatrix())
+											
+Boolean findPivot(int start, Matrix c, int* pivot, int* pivotR); //used in REF functions to find pivot 
+																 
+void sub_matrixAdd(Matrix* m, Mel el, int* row, int* column); //adds into a matrix an element and moves forward into the matrix
 
-Boolean isTriangular(Matrix m);
+int MbubbleSort(Matrix v[]); 
 
-Boolean isRowEchelon(Matrix m);
+int compareRow(Row e1, Row e2, int dim); //for sorting, rows with smaller pivot indexes are "bigger"
 
-Boolean zeroRow(Row r, int dim);
+void normalizeMel(Matrix* m, int pivotR, int j, float norma); //normalize a sigle element
 
-int nonZeroRows(Matrix m);
-
-Matrix rowEchelon(Matrix m);
-
-Matrix reducedRowEch(Matrix m);
-
-Matrix inverseMatrix(Matrix m);
-
-Boolean findPivot(int start, Matrix c, int* pivot, int* pivotR);
-
-Matrix identityMatrix(int rows, int columns);
-
-Matrix rowEchDet(Matrix m, int* exchanges);
-
-int rankMatrix(Matrix m);
-
-void fillMatrix(Matrix* m, Mel n);
-
-Matrix copyMatrix(Matrix m);
-
-float detMatrix(Matrix m);
+void op_gaussJordan(Matrix* c, Matrix* inverse); //performs reducedRowEch() the first, performs the same operations on the second
+												 //used for inverseMatrix()
 
 #endif

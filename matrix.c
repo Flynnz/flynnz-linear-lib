@@ -68,13 +68,12 @@ int printMatrix(Matrix m)
 	return k;
 }
 
-int freeMatrix(Matrix m)
+void freeMatrix(Matrix m)
 {
 	int i;
 	for (i = 0; i < m.rows; i++)
 		free(m.data[i]);
 	free(m.data);
-	return i;
 }
 
 Matrix matrixSum(Matrix m1, Matrix m2)
@@ -227,18 +226,18 @@ Vect rowToVect(Matrix m, int rowNumber)
 Mel scalarProd(Vect v1, Vect v2)
 {
 	int i;
-	Mel result = -1000;
+	Mel result = 0;
 
-	if (v1.dim != v2.dim) { printf("\nIncompatible vectors\n"); }
+	if (v1.dim != v2.dim) { printf("\nIncompatible vectors\n"); return -1000; }
 	else
 	{
 		for (i = 0; i < v1.dim; i++)
 			result += v1.data[i] * v2.data[i];
+		return result;
 	}
-	return result;
 }
 
-Matrix subMatrix(Matrix m, int r, int c)
+Matrix subMatrix(Matrix m, int rowToElim, int colToElim)
 {
 	int i, j, k = 0, t = 0;
 	Mel elem;
@@ -255,7 +254,7 @@ Matrix subMatrix(Matrix m, int r, int c)
 		{
 			for (j = 0; j < m.rows; j++)
 			{
-				if (i != r && j != c)
+				if (i != rowToElim && j != colToElim)
 				{
 					elem = m.data[i][j];
 					sub_matrixAdd(&result, elem, &k, &t);
@@ -497,7 +496,7 @@ Matrix identityMatrix(int rows, int columns)
 {
 	Matrix identity = emptyMatrix(rows, columns);
 	int i, j;
-	if (identity.rows != identity.columns) { printf("\nIncompatible empty matrix format\n"); }
+	if (identity.rows != identity.columns) { printf("\nInexistent identity matrix for non-square matrices\n"); identity.rows = 0; identity.columns = 0; }
 	else
 	{
 		for (i = 0; i < identity.rows; i++)

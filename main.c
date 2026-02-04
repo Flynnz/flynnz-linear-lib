@@ -18,11 +18,11 @@ int main(void)
 	float r5[4] = {0, 63, 0};
 	float r6[4] = {-15, 0, 0};
 
-	float r7[5] = {7, 0, 6, 0, 0 };
-	float r8[5] = {9, 67, 3, 9, 4};
-	float r9[5] = {0, 9, 0, 0, 8};
-	float r10[5] = {0, 0, 97, 0, 0};
-	float r11[5] = {0, 12, 0, 1, 9};
+	float r7[5] = {0, 0, 0, 0, 0 };
+	float r8[5] = {0, 0, 0, 0, 0};
+	float r9[5] = {0, 0, 0, 0, 0};
+	float r10[5] = {0, 0, 0, 0, 0};
+	float r11[5] = {0, 0, 0, 0, 0};
 	Vect v, w;
 	Matrix m1, m2, result, m1Sub, m1SubSub, m3;
 	Mel n;
