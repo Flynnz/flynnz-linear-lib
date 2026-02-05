@@ -5,7 +5,7 @@ Matrix emptyMatrix(int rows, int columns)
 	int i;
 	Matrix final;
 	final.data = (rowArr)malloc(sizeof(Row) * rows);
-	if (final.data == NULL || rows <= 0 || columns <= 0) { final.data = NULL; final.rows = 0; final.columns = 0; }
+	if (final.data == NULL || rows <= 0 || columns <= 0) { final = nullMatrix(); }
 	else
 	{
 		final.rows = rows;
@@ -26,20 +26,65 @@ void matrixAddRow(Matrix* empty, Row rowToInsert, int rowToChange)
 		empty->data[rowToChange][i] = rowToInsert[i];
 }
 
+void clear_input(void)
+{
+	int c;
+	while ((c = getchar()) != '\n' && c != EOF);
+}
+
 Matrix inputMatrix()
 {
-	int i = 0, j, rows = 0, cols = 0;
+	int i = 0, j, rows = 0, cols = 0, scanned = 0;;
 	printf("\nCreating matrix...");
 	printf("\nHow many rows? ");
-	scanf_s("%d", &rows);
+	while (rows <= 0 || scanned < 1)
+	{
+		scanned = scanf_s("%d", &rows);
+		if (scanned < 1)
+		{
+			clear_input();
+			printf("Please input an integer (> 0): ");
+		}
+		else
+		{
+			if (rows <= 0)
+				printf("Please input valid number of rows (> 0): ");
+		}
+	}
+	scanned = 0;
 	printf("\nHow many columns? ");
-	scanf_s("%d", &cols);
+	while (cols <= 0 || scanned < 1)
+	{
+		scanned = scanf_s("%d", &cols);
+		if (scanned < 1)
+		{
+			clear_input();
+			printf("Please input an integer (> 0): ");
+		}
+		else
+		{
+			if (cols <= 0)
+				printf("Please input valid number of columns (> 0): ");
+		}
+	}
+
 	Matrix empty = emptyMatrix(rows, cols);
 	while (i < empty.rows)
 	{
 		printf("\nInsert row n.%d\n", i + 1);
 		for (j = 0; j < empty.columns; j++)
-			scanf_s("%f", &(empty.data[i][j]));
+		{
+			scanned = 0;
+			while (scanned < 1)
+			{
+				scanned = scanf_s("%f", &(empty.data[i][j]));
+				if (scanned < 1)
+				{
+					clear_input();
+					printf("Error reading values, please input float values:\n");
+				}
+			}
+		}
 		i++;
 	}
 	return empty;
@@ -49,7 +94,7 @@ int printMatrix(Matrix m)
 {
 	int i, j, k = 0;
 	if (m.data == NULL || m.rows == 0 || m.columns == 0)
-		printf("NULL\n");
+		printf("\nNULL\n");
 	else
 	{
 		for (i = 0; i < m.rows; i++)
@@ -84,11 +129,8 @@ void freeMatrix(Matrix m)
 
 Matrix matrixSum(Matrix m1, Matrix m2)
 {
-	Matrix result;
+	Matrix result = nullMatrix();
 	int i, j;
-	result.rows = 0;
-	result.columns = 0;
-	result.data = NULL;
 	if ((m1.rows != m2.rows) || (m1.columns != m2.columns))
 		printf("\n!Incompatible matrices!\n");
 	else
@@ -105,11 +147,8 @@ Matrix matrixSum(Matrix m1, Matrix m2)
 
 Matrix matrixSub(Matrix m1, Matrix m2)
 {
-	Matrix result;
+	Matrix result = nullMatrix();
 	int i, j;
-	result.rows = 0;
-	result.columns = 0;
-	result.data = NULL;
 	if ((m1.rows != m2.rows) || (m1.columns != m2.columns))
 		printf("\n!Incompatible matrices!\n");
 	else
@@ -189,10 +228,7 @@ Matrix matrixProd(Matrix m1, Matrix m2)
 {
 	Matrix product;
 	int i, j, k;
-	product.data = NULL;
-	product.rows = 0;
-	product.columns = 0;
-	if ((m1.columns != m2.rows) || (m2.columns != m1.rows)) { printf("\n!Incompatible matrices!\n"); }
+	if ((m1.columns != m2.rows) || (m2.columns != m1.rows)) { printf("\n!Incompatible matrices!\n"); product = nullMatrix(); }
 	else
 	{
 		product = emptyMatrix(m1.rows, m2.columns);
@@ -248,11 +284,7 @@ Matrix subMatrix(Matrix m, int rowToElim, int colToElim)
 	int i, j, k = 0, t = 0;
 	Mel elem;
 	Matrix result;
-	result.data = NULL;
-	result.rows = 0;
-	result.columns = 0;
-
-	if (m.rows != m.columns) { printf("\nSubmatrix not allowed\n"); }
+	if (m.rows != m.columns) { printf("\nSubmatrix not allowed\n"); result = nullMatrix(); }
 	else
 	{
 		result = emptyMatrix(m.rows - 1, m.columns - 1);
@@ -363,7 +395,7 @@ Boolean isRowEchelon(Matrix m)
 	return itIs;
 }
 
-void normalizeMel(Matrix* m, int pivotR, int j, float norma)
+void normalizeEl(Matrix* m, int pivotR, int j, float norma)
 {
 	if (m->data[pivotR][j] != 0)
 		m->data[pivotR][j] = m->data[pivotR][j] / norma;
@@ -413,7 +445,7 @@ Matrix reducedRowEch(Matrix m)
 		norma = c.data[pivotR][pivot];
 		if (norma != 0 && norma != 1)
 			for (j = 0; j < c.columns; j++)
-				normalizeMel(&c, pivotR, j, norma);
+				normalizeEl(&c, pivotR, j, norma);
 
 		for (i = k + 1; i < c.rows; i++)
 		{
@@ -475,8 +507,8 @@ void op_gaussJordan(Matrix* c, Matrix* inverse)
 		{
 			for (j = 0; j < c->columns; j++)
 			{
-				normalizeMel(c, pivotR, j, norma);
-				normalizeMel(inverse, pivotR, j, norma);
+				normalizeEl(c, pivotR, j, norma);
+				normalizeEl(inverse, pivotR, j, norma);
 			}
 		}
 
@@ -499,7 +531,7 @@ Matrix identityMatrix(int rows, int columns)
 {
 	Matrix identity = emptyMatrix(rows, columns);
 	int i, j;
-	if (identity.rows != identity.columns) { printf("\nInexistent identity matrix for non-square matrices\n"); identity.rows = 0; identity.columns = 0; }
+	if (identity.rows != identity.columns) { printf("\nInexistent identity matrix for non-square matrices\n"); identity = nullMatrix(); }
 	else
 	{
 		for (i = 0; i < identity.rows; i++)
@@ -518,11 +550,13 @@ Matrix identityMatrix(int rows, int columns)
 
 Matrix inverseMatrix(Matrix m)
 {
-	if (rankMatrix(m) != m.rows) { printf("\nInverse not allowed\n"); return emptyMatrix(0, 0); }
+	Matrix c, inverse;
+	int rank = rankMatrix(m);
+	if (rank != m.rows || rank != m.columns) { printf("\nInverse not allowed\n"); inverse= nullMatrix(); }
 	else
 	{
-		Matrix c = copyMatrix(m);
-		Matrix inverse = identityMatrix(m.rows, m.columns);
+		c = copyMatrix(m);
+		inverse = identityMatrix(m.rows, m.columns);
 		int k, i, j;
 		float multi;
 
@@ -544,8 +578,8 @@ Matrix inverseMatrix(Matrix m)
 			}
 		}
 		freeMatrix(c);
-		return inverse;
 	}
+	return inverse;
 }
 
 Boolean findPivot(int start, Matrix c, int* pivot, int* pivotR)
@@ -591,7 +625,7 @@ Matrix copyMatrix(Matrix m)
 {
 	Matrix r = emptyMatrix(m.rows, m.columns);
 	int i, j;
-	if (m.rows == 0 || m.columns == 0) { r.data = NULL; }
+	if (m.rows == 0 || m.columns == 0) { r = nullMatrix(); }
 	else
 	{
 		for (i = 0; i < m.rows; i++)
@@ -688,10 +722,11 @@ Matrix baseChange(Matrix A, Matrix C)
 	int rankC = rankMatrix(C);
 	Matrix B;
 
-	if (rankA != rankC || rankA != A.columns || rankA != A.rows || rankC != C.columns || rankC != C.rows)
+	if (rankA != rankC || rankA != A.columns || rankA != A.rows
+		|| rankC != C.columns || rankC != C.rows)
 	{
 		printf("\nBase change not allowed\n");
-		B = emptyMatrix(0, 0);
+		B = nullMatrix();
 	}
 	else
 	{
@@ -701,6 +736,15 @@ Matrix baseChange(Matrix A, Matrix C)
 		freeMatrix(C_inv);
 	}
 	return B;
+}
+
+Matrix nullMatrix()
+{
+	Matrix null;
+	null.data = NULL;
+	null.rows = 0;
+	null.columns = 0;
+	return null;
 }
 
 //DEPRECATED

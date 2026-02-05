@@ -37,6 +37,8 @@ typedef struct matrix
 
 Matrix emptyMatrix(int rows, int columns); //allocate the necessary space for a matrix
 
+Matrix nullMatrix(); //matrix with NULL value, 0 rows and 0 colums
+
 void freeMatrix(Matrix m); //deallocate matrix memory from heap
 
 int printMatrix(Matrix m); //yeah
@@ -118,9 +120,10 @@ int MbubbleSort(Matrix v[]);
 
 int compareRow(Row e1, Row e2, int dim); //for sorting, rows with smaller pivot indexes are "bigger"
 
-void normalizeMel(Matrix* m, int pivotR, int j, float norma); //normalize a sigle element
+void normalizeEl(Matrix* m, int pivotR, int j, float norma); //normalize a sigle element
 
 void op_gaussJordan(Matrix* c, Matrix* inverse); //performs reducedRowEch() the first, performs the same operations on the second
 												 //used for inverseMatrix()
+void clear_input(void);
 
 #endif
