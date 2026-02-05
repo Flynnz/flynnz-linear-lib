@@ -5,7 +5,7 @@ Matrix emptyMatrix(int rows, int columns)
 	int i;
 	Matrix final;
 	final.data = (rowArr)malloc(sizeof(Row) * rows);
-	if (final.data == NULL) { printf("\nRows creation error\n"); final.rows = 0; final.columns = 0; }
+	if (final.data == NULL || rows <= 0 || columns <= 0) { final.data = NULL; final.rows = 0; final.columns = 0; }
 	else
 	{
 		final.rows = rows;
@@ -26,17 +26,23 @@ void matrixAddRow(Matrix* empty, Row rowToInsert, int rowToChange)
 		empty->data[rowToChange][i] = rowToInsert[i];
 }
 
-void inputMatrix(Matrix* empty)
+Matrix inputMatrix()
 {
-	int i = 0, j;
-	printf("Max number of rows: %d\n", empty->rows);
-	while (i < empty->rows)
+	int i = 0, j, rows = 0, cols = 0;
+	printf("\nCreating matrix...");
+	printf("\nHow many rows? ");
+	scanf_s("%d", &rows);
+	printf("\nHow many columns? ");
+	scanf_s("%d", &cols);
+	Matrix empty = emptyMatrix(rows, cols);
+	while (i < empty.rows)
 	{
-		printf("Insert row n.%d\n", i + 1);
-		for (j = 0; j < empty->columns; j++)
-			scanf_s("%f", &(empty->data[i][j]));
+		printf("\nInsert row n.%d\n", i + 1);
+		for (j = 0; j < empty.columns; j++)
+			scanf_s("%f", &(empty.data[i][j]));
 		i++;
 	}
+	return empty;
 }
 
 int printMatrix(Matrix m)
@@ -303,9 +309,10 @@ float laplaceDetMatrix(Matrix m)
 
 float detMatrix(Matrix m)
 {
-	int i, mult = 1;
+	int i, mult = 1, rank;
 	float det = 1;
-	if (rankMatrix(m) != m.rows) { printf("\nDeterminant not allowed\n"); }
+	rank = rankMatrix(m);
+	if (rank != m.rows || rank != m.columns) { printf("\nDeterminant not allowed\n"); det = -1000; }
 	else
 	{
 		Matrix reduced = rowEchDet(m, &mult);
@@ -315,9 +322,9 @@ float detMatrix(Matrix m)
 				det *= reduced.data[i][i];
 		}
 		freeMatrix(reduced);
+		if (det != 0)
+			det = mult * det;
 	}
-	if (det != 0)
-		det = mult * det;
 	return det;
 }
 
@@ -327,6 +334,7 @@ int rankMatrix(Matrix m)
 	Matrix c = emptyMatrix(m.rows, m.columns);
 	c = rowEchelon(m);
 	rank = nonZeroRows(c);
+	freeMatrix(c);
 	return rank;
 }
 
@@ -343,17 +351,12 @@ Boolean isRowEchelon(Matrix m)
 {
 	//assuming that REF also means it is sorted correctly
 	Boolean itIs = true;
-	int i, j, count = 0, max = -1;
+	int i, j, max = -1;
 	for (i = 0; i < m.rows && itIs; i++)
 	{
-		count = 0;
-		for (j = 0; j < m.columns; j++)
-		{
-			if (m.data[i][j] == 0)
-				count++;
-		}
-		if (count > max)
-			max = count;
+		for (j = 0; j < m.columns && m.data[i][j] == 0; j++);
+		if (j > max)
+			max = j;
 		else
 			itIs = false;
 	}
@@ -406,7 +409,7 @@ Matrix reducedRowEch(Matrix m)
 			exchangeRows(&c.data[pivotR], &c.data[k]);
 		pivotR = k; //now it is in "top" row
 
-		//normalize pivotR
+		//normalize pivotR after exchanging
 		norma = c.data[pivotR][pivot];
 		if (norma != 0 && norma != 1)
 			for (j = 0; j < c.columns; j++)
@@ -675,6 +678,29 @@ Boolean isTriangular(Matrix m)
 		}
 	}
 	return !notLower;
+}
+
+Matrix baseChange(Matrix A, Matrix C)
+{
+	//C: baseC -> baseA
+	//C^-1: baseA -> baseC
+	int rankA = rankMatrix(A);
+	int rankC = rankMatrix(C);
+	Matrix B;
+
+	if (rankA != rankC || rankA != A.columns || rankA != A.rows || rankC != C.columns || rankC != C.rows)
+	{
+		printf("\nBase change not allowed\n");
+		B = emptyMatrix(0, 0);
+	}
+	else
+	{
+		Matrix C_inv = inverseMatrix(C);
+		B = matrixProd(A, C);
+		B = matrixProd(B, C_inv);
+		freeMatrix(C_inv);
+	}
+	return B;
 }
 
 //DEPRECATED

@@ -1,8 +1,49 @@
-#include "functions.h"
 #include "matrix.h"
 
 int main(void)
 {
+	Matrix m = inputMatrix();
+	printf("\nMatrix created successfully:\n");
+	printMatrix(m);
+
+	int rank = rankMatrix(m);
+	printf("\nRank: %d\n", rank);
+
+	Boolean isREF = false;
+	isREF = isRowEchelon(m);
+	if (isREF)
+		printf("\nThe matrix is already in REF\n");
+	else
+	{
+		Matrix REF = rowEchelon(m);
+		printf("\nREF:\n");
+		printMatrix(REF);
+		freeMatrix(REF);
+	}
+
+	Matrix RREF = reducedRowEch(m);
+	printf("\nRREF:\n");
+	printMatrix(RREF);
+
+	float det = detMatrix(m);
+	if (det != -1000)
+		printf("\nDeterminant: %f\n", detMatrix(m));
+
+	Matrix inv = inverseMatrix(m);
+	if (inv.data != NULL)
+	{
+		printf("\nInverse:\n");
+		printMatrix(inv);
+	}
+	
+	freeMatrix(m);
+	freeMatrix(inv);
+	freeMatrix(RREF);
+	return 0;
+}
+
+//testing
+/*
 	int dim = 3;
 	int r = 3, c = 3;
 	float vettore1[3] = {1, 0, -1};
@@ -107,7 +148,7 @@ int main(void)
 
 	//test Gauss
 	Matrix inScala;
-	
+
 	printf("\nIn scala:\n");
 	inScala = rowEchelon(m2);
 	printMatrix(inScala);
@@ -144,5 +185,4 @@ int main(void)
 	freeMatrix(inScala);
 	freeMatrix(RREF);
 	freeMatrix(inversa);
-	return 0;
-}
+*/

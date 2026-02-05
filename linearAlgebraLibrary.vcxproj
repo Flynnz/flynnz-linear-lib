@@ -128,20 +128,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="element.c" />
-    <ClCompile Include="functions.c" />
-    <ClCompile Include="list.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="matrix.c" />
-    <ClCompile Include="mylib.c" />
-    <ClCompile Include="sorting.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="element.h" />
-    <ClInclude Include="functions.h" />
-    <ClInclude Include="list.h" />
     <ClInclude Include="matrix.h" />
-    <ClInclude Include="mylib.h" />
-    <ClInclude Include="sorting.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

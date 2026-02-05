@@ -30,7 +30,7 @@ typedef struct matrix
 }Matrix;
 
 //--------------------------------------------------------------------------------------------------------------------------------
-														//FUNCTIONS
+//														 FUNCTIONS
 //--------------------------------------------------------------------------------------------------------------------------------
 
 //-------------------------------------------------------MATRICES-----------------------------------------------------------------
@@ -43,7 +43,7 @@ int printMatrix(Matrix m); //yeah
 
 void matrixAddRow(Matrix* empty, Row rowToInsert, int rowToChange); //use arrays to add/modify rows of a matrix
 
-void inputMatrix(Matrix* empty); //allows user to create matrix from stdin
+Matrix inputMatrix(); //allows user to create matrix from stdin
 										
 Matrix copyMatrix(Matrix m); //returns a copy of a matrix m
 
@@ -54,6 +54,8 @@ Matrix matrixSum(Matrix m1, Matrix m2);
 Matrix matrixSub(Matrix m1, Matrix m2);
 
 Matrix matrixProd(Matrix m1, Matrix m2); //matrix-matrix multiplication
+
+Matrix baseChange(Matrix A, Matrix C); //change base
 
 int rankMatrix(Matrix m); //determines the rank of a matrix
 
@@ -73,7 +75,7 @@ Matrix inverseMatrix(Matrix m); //uses gauss-jordan elimination to find the inve
 
 int matrixSort(Matrix a[]); //sort in decreasing order
 
-//---------------------------------------------------------VECTORS---------------------------------------------------------------
+//---------------------------------------------------------VECTORS----------------------------------------------------------------
 
 Vect emptyVect(int dim); //allocate the necessary space for a vector
 
@@ -91,7 +93,7 @@ Vect rowToVect(Matrix m, int Row);
 										//converts a row/column of a matrix into a vector
 Vect columnToVect(Matrix m, int column);
 
-//-----------------------------------------------------------MISC--------------------------------------------------------------
+//-----------------------------------------------------------MISC-----------------------------------------------------------------
 Boolean isRowEchelon(Matrix m); //yup
 
 void exchangeRows(Row* a, Row* b); //exchange two rows
@@ -103,7 +105,7 @@ Boolean zeroRow(Row r, int dim); //check if a row is zeros-only
 int nonZeroRows(Matrix m); //finds the number of non-zero rows
 
 //--------------------------------------------------------------------------------------------------------------------------------
-//													Not intended for user
+//													Not intended for use
 //--------------------------------------------------------------------------------------------------------------------------------
 
 Matrix rowEchDet(Matrix m, int* exchanges); //the same as rowEchelon() but it counts how many exchanges were made (for detMatrix())
