@@ -18,11 +18,11 @@ int main(void)
 	float r5[4] = {0, 63, 0};
 	float r6[4] = {-15, 0, 0};
 
-	float r7[5] = {0, 0, 0, 0, 0 };
-	float r8[5] = {0, 0, 0, 0, 0};
-	float r9[5] = {0, 0, 0, 0, 0};
-	float r10[5] = {0, 0, 0, 0, 0};
-	float r11[5] = {0, 0, 0, 0, 0};
+	float r7[5] = {67, 0, 0, 0, 76 };
+	float r8[5] = {0, 67, 0, -76, 0};
+	float r9[5] = {0, 0, -67, 0, 0};
+	float r10[5] = {0, -76, 0, 67, 0};
+	float r11[5] = {76, 0, 0, 0, 67};
 	Vect v, w;
 	Matrix m1, m2, result, m1Sub, m1SubSub, m3;
 	Mel n;
@@ -109,7 +109,7 @@ int main(void)
 	Matrix inScala;
 	
 	printf("\nIn scala:\n");
-	inScala = rowEchelon(m3);
+	inScala = rowEchelon(m2);
 	printMatrix(inScala);
 
 	//test rango matrice
@@ -119,11 +119,11 @@ int main(void)
 	//test Gauss Jordan
 	Matrix RREF, inversa;
 
-	RREF = reducedRowEch(m3);
+	RREF = reducedRowEch(m2);
 	printf("Riduzione RREF:\n");
 	printMatrix(RREF);
-	inversa = inverseMatrix(m3);
-	printf("Inversa m3:\n");
+	inversa = inverseMatrix(m2);
+	printf("Inversa m2:\n");
 	printMatrix(inversa);
 
 	//altro test inversa
