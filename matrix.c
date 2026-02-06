@@ -796,31 +796,83 @@ Vect scaleVect(Vect vector, Mel k)
 	else
 	{
 		for (i = 0; i < vector.dim; i++)
-			if (vector.data[i] != 0)
-				vector.data[i] *= k;
+			if (scaled.data[i] != 0)
+				scaled.data[i] *= k;
 	}
 	return scaled;
 }
 
+Vect vectSum(Vect v1, Vect v2)
+{
+	Vect sum;
+	int i;
+	if (v1.dim != v2.dim) { printf("\nIncompatible vectors\n"); sum = nullVect(); }
+	else
+	{
+		sum = emptyVect(v1.dim);
+		for (i = 0; i < v1.dim; i++)
+			sum.data[i] = v1.data[i] + v2.data[i];
+	}
+	return sum;
+}
+
 int kerMatrix(Matrix m)
 {
-	int kerDim = 0;
-	if (!fullRank(m)) { kerDim = m.rows; }
+	int kerDim = 0, i, j;
+	if (fullRank(m)) { kerDim = m.rows; }
 	else
 	{
 		Matrix RREF = reducedRowEch(m);
 		delZeroRows(&RREF);
 		L_EQ* equations = NULL;
 		//save equations in an array
-		equations = (L_EQ*)malloc(sizeof(L_EQ) * m.rows);
+		equations = (L_EQ*)malloc(sizeof(L_EQ) * RREF.rows);
 		if (equations == NULL) { printf("\nmalloc error\n"); }
 		else
-			saveEquations(m, equations);
-
-
-		//
-
-
+		{
+			saveEquations(RREF, equations);
+			/////
+			
+			printf("\nEquations:\n");
+			for (i = 0; i < RREF.rows; i++)
+			{
+				printf("%d: |", i + 1);
+				for (j = 0; j < RREF.columns; j++)
+				{
+					printf("%f ", equations[i].value.data[j]);
+				}
+				printf("|\n\n");
+			}
+			
+			/////
+			for (i = RREF.rows - 1; i << RREF.rows >= 0; i--)
+			{
+				for (j = equations[i].value.dim - 1; j >= 0 ; j--)
+				{
+					if (equations[i].value.data[j] != 0 && needSub_ker(j, equations))
+					{
+						Vect toFree = equations[i].value;
+						Vect toSum = findEqValue(j, equations);
+						equations[i].value = scaleVect(equations[i].value, equations[i].value.data[j]);
+						freeVect(toFree);
+						toFree = equations[i].value;
+						equations[i].value = vectSum(toSum, equations[i].value);
+						freeVect(toFree);
+						equations[i].value.data[j] = 0;
+					}
+				}
+			}
+			for (i = 0; i < RREF.rows; i++)
+			{
+				printf("%d: |", i + 1);
+				for (j = 0; j < m.columns; j++)
+				{
+					printf("%c = ", (char)(equations[i].id + 97));
+					printf("%f ", equations[i].value.data[j]);
+				}
+				printf("|");
+			}
+		}
 
 		//also free vects in equations
 		free(equations);
@@ -828,9 +880,44 @@ int kerMatrix(Matrix m)
 	return kerDim;
 }
 
-L_EQ extractValue(L_EQ eq)
+Vect findEqValue(int id, L_EQ* eqs)
 {
-	return eq;
+	int i;
+	Boolean found = false;
+	Vect result;
+	result = nullVect();
+	for (i = 0; i < eqs->value.dim && !found; i++)
+		if (id == eqs[i].id)
+		{
+			found = true;
+			result = eqs[i].value;
+		}
+	return result;
+}
+
+Boolean needSub_ker(int j, L_EQ* eqs)
+{
+	int i;
+	Boolean need = false;
+	for (i = 0; i < eqs->value.dim && !need; i++)
+		if (j == eqs[i].id)
+			need = true;
+	return need;
+}
+
+void extractValue(L_EQ* eq)
+{
+	Vect zero = zeroVect(eq->value.dim);
+	Vect toFree = zero;
+	zero = vectSum(zero, eq->value);
+	freeVect(toFree);
+	zero.data[eq->id] = 0;
+	toFree = zero;
+	zero = scaleVect(zero, -1);
+	freeVect(toFree);
+	eq->id = eq->id;
+	eq->value = zero;
+	eq->varIsolated = true;
 }
 
 Vect zeroVect(int dim)
@@ -853,10 +940,12 @@ void saveEquations(Matrix m, L_EQ* equations)
 	{
 		Vect eqValue = rowToVect(m, i);
 		L_EQ equation;
-		//find pivot == L_EQ id
+		//find pivot == L_EQ -> int id;
 		for (j = 0; j < eqValue.dim && eqValue.data[j] == 0; j++);
 		equation.id = j;
 		equation.value = eqValue;
+		equation.varIsolated = false;
+		extractValue(&equation);
 		equations[i] = equation;
 	}
 }

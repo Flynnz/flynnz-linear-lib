@@ -35,6 +35,9 @@ int main(void)
 		printf("\nInverse:\n");
 		printMatrix(inv);
 	}
+
+	printf("\nker?\n");
+	kerMatrix(m);
 	
 	freeMatrix(m);
 	freeMatrix(inv);

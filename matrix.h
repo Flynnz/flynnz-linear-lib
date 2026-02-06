@@ -33,6 +33,7 @@ typedef struct linear_equation
 {
 	int id;
 	Vect value;
+	Boolean varIsolated;
 }L_EQ;
 
 //--------------------------------------------------------------------------------------------------------------------------------
@@ -69,6 +70,8 @@ Matrix baseChange(Matrix A, Matrix C); //change base
 
 int rankMatrix(Matrix m); //determines the rank of a matrix
 
+int kerMatrix(Matrix m);
+
 void fillMatrix(Matrix* m, Mel n); //fill an entire matrix with a chosen element
 							
 Matrix subMatrix(Matrix m, int rowToElim, int colToElim); //create a submatrix
@@ -93,11 +96,15 @@ Vect emptyVect(int dim); //allocate the necessary space for a vector
 
 Vect nullVect(); //null vector with size 0 and NULL value
 
+Vect zeroVect(int dim);
+
 void freeVect(Vect v); //deallocate vector memory from heap
 
 int defineVect(Vect empty, float arr[], int dimArr); //use an array to define a vector
 
 Vect copyVect(Vect v);
+
+Vect vectSum(Vect v1, Vect v2);
 
 Vect scaleVect(Vect vector, Mel k); //multply a vector by a scalar value
 
@@ -145,5 +152,11 @@ void clear_input(void);
 void delZeroRows(Matrix* sorted);
 
 void saveEquations(Matrix m, L_EQ* equations); 
+
+void extractValue(L_EQ* eq);
+
+Boolean needSub_ker(int j, L_EQ* eqs);
+
+Vect findEqValue(int id, L_EQ* eqs);
 
 #endif
