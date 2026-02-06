@@ -29,6 +29,12 @@ typedef struct matrix
 	rowArr data;
 }Matrix;
 
+typedef struct linear_equation
+{
+	int id;
+	Vect value;
+}L_EQ;
+
 //--------------------------------------------------------------------------------------------------------------------------------
 //														 FUNCTIONS
 //--------------------------------------------------------------------------------------------------------------------------------
@@ -50,6 +56,8 @@ Matrix inputMatrix(); //allows user to create matrix from stdin
 Matrix copyMatrix(Matrix m); //returns a copy of a matrix m
 
 Matrix identityMatrix(int rows, int columns); //returns an identity matrix of a chosen size
+
+Matrix zeroMatrix(int rows, int columns); //0 matrix of chosen size
 
 Matrix matrixSum(Matrix m1, Matrix m2); 
 										//matrix sum
@@ -77,13 +85,21 @@ Matrix inverseMatrix(Matrix m); //uses gauss-jordan elimination to find the inve
 
 int matrixSort(Matrix a[]); //sort in decreasing order
 
+Boolean fullRank(Matrix m); 
+
 //---------------------------------------------------------VECTORS----------------------------------------------------------------
 
 Vect emptyVect(int dim); //allocate the necessary space for a vector
 
+Vect nullVect(); //null vector with size 0 and NULL value
+
 void freeVect(Vect v); //deallocate vector memory from heap
 
 int defineVect(Vect empty, float arr[], int dimArr); //use an array to define a vector
+
+Vect copyVect(Vect v);
+
+Vect scaleVect(Vect vector, Mel k); //multply a vector by a scalar value
 
 int printVect(Vect v); //yup
 
@@ -102,7 +118,7 @@ void exchangeRows(Row* a, Row* b); //exchange two rows
 
 Boolean isTriangular(Matrix m); //check if m is triangular
 
-Boolean zeroRow(Row r, int dim); //check if a row is zeros-only
+Boolean isZeroRow(Row r, int dim); //check if a row is zeros-only
 
 int nonZeroRows(Matrix m); //finds the number of non-zero rows
 
@@ -112,7 +128,7 @@ int nonZeroRows(Matrix m); //finds the number of non-zero rows
 
 Matrix rowEchDet(Matrix m, int* exchanges); //the same as rowEchelon() but it counts how many exchanges were made (for detMatrix())
 											
-Boolean findPivot(int start, Matrix c, int* pivot, int* pivotR); //used in REF functions to find pivot 
+Boolean GJfindPivot(int start, Matrix c, int* pivot, int* pivotR); //used in REF functions to find pivot 
 																 
 void sub_matrixAdd(Matrix* m, Mel el, int* row, int* column); //adds into a matrix an element and moves forward into the matrix
 
@@ -125,5 +141,9 @@ void normalizeEl(Matrix* m, int pivotR, int j, float norma); //normalize a sigle
 void op_gaussJordan(Matrix* c, Matrix* inverse); //performs reducedRowEch() the first, performs the same operations on the second
 												 //used for inverseMatrix()
 void clear_input(void);
+
+void delZeroRows(Matrix* sorted);
+
+void saveEquations(Matrix m, L_EQ* equations); 
 
 #endif

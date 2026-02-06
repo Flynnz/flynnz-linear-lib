@@ -166,9 +166,8 @@ Matrix matrixSub(Matrix m1, Matrix m2)
 Vect emptyVect(int dim)
 {
 	Vect result;
-	result.dim = 0;
 	result.data = (Mel*)malloc(sizeof(Mel) * dim);
-	if (result.data == NULL) { printf("\nVector creation error\n"); }
+	if (result.data == NULL || dim <= 0) { printf("\nVector creation error\n"); result = nullVect(); }
 	else
 		result.dim = dim;
 	return result;
@@ -322,7 +321,7 @@ float laplaceDetMatrix(Matrix m)
 {
 	int i = m.columns - 1;
 	float determinant = 0;
-	if (rankMatrix(m) != m.rows) { printf("\nDeterminant not allowed\n"); }
+	if (!fullRank(m)) { printf("\nDeterminant not allowed\n"); }
 	else
 	{
 		if (m.rows == 1)
@@ -341,10 +340,9 @@ float laplaceDetMatrix(Matrix m)
 
 float detMatrix(Matrix m)
 {
-	int i, mult = 1, rank;
+	int i, mult = 1;
 	float det = 1;
-	rank = rankMatrix(m);
-	if (rank != m.rows || rank != m.columns) { printf("\nDeterminant not allowed\n"); det = -1000; }
+	if (!fullRank(m)) { printf("\nDeterminant not allowed\n"); det = -1000; }
 	else
 	{
 		Matrix reduced = rowEchDet(m, &mult);
@@ -362,11 +360,15 @@ float detMatrix(Matrix m)
 
 int rankMatrix(Matrix m)
 {
-	int rank = 0;
-	Matrix c = emptyMatrix(m.rows, m.columns);
-	c = rowEchelon(m);
-	rank = nonZeroRows(c);
-	freeMatrix(c);
+	int rank;
+	if (m.data == NULL || m.data == 0|| m.rows == 0 || m.columns == 0) { rank = 0; }
+	else
+	{
+		Matrix c = emptyMatrix(m.rows, m.columns);
+		c = rowEchelon(m);
+		rank = nonZeroRows(c);
+		freeMatrix(c);
+	}
 	return rank;
 }
 
@@ -374,7 +376,7 @@ int nonZeroRows(Matrix m)
 {
 	int i, j = 0;
 	for (i = 0; i < m.rows; i++)
-		if (!zeroRow(m.data[i], m.columns))
+		if (!isZeroRow(m.data[i], m.columns))
 			j++;
 	return j;
 }
@@ -401,6 +403,19 @@ void normalizeEl(Matrix* m, int pivotR, int j, float norma)
 		m->data[pivotR][j] = m->data[pivotR][j] / norma;
 }
 
+void delZeroRows(Matrix* sorted)
+{
+	int i;
+	for (i = 0; i < sorted->rows; i++)
+	{
+		if (isZeroRow(sorted->data[i], sorted->columns))
+		{
+			free(sorted->data[i]);
+			sorted->rows--;
+		}
+	}
+}
+
 Matrix rowEchelon(Matrix m)
 {
 	Matrix c = copyMatrix(m);
@@ -410,7 +425,7 @@ Matrix rowEchelon(Matrix m)
 	if (isRowEchelon(c)) { return c; }
 	else
 	{
-		for (k = 0; k < c.rows && findPivot(k, c, &pivot, &pivotR); k++)
+		for (k = 0; k < c.rows && GJfindPivot(k, c, &pivot, &pivotR); k++)
 		{
 			if (pivotR != k) //if not in "top" row, exchange
 				exchangeRows(&c.data[pivotR], &c.data[k]);
@@ -435,7 +450,7 @@ Matrix reducedRowEch(Matrix m)
 	int pivot, pivotR;
 	int i, j, k;
 	float factor = 0, norma = 1;
-	for (k = 0; k < c.rows && findPivot(k, c, &pivot, &pivotR); k++)
+	for (k = 0; k < c.rows && GJfindPivot(k, c, &pivot, &pivotR); k++)
 	{
 		if (pivotR != k) //if not in "top" row, exchange
 			exchangeRows(&c.data[pivotR], &c.data[k]);
@@ -446,7 +461,6 @@ Matrix reducedRowEch(Matrix m)
 		if (norma != 0 && norma != 1)
 			for (j = 0; j < c.columns; j++)
 				normalizeEl(&c, pivotR, j, norma);
-
 		for (i = k + 1; i < c.rows; i++)
 		{
 			factor = c.data[i][pivot];
@@ -468,7 +482,7 @@ Matrix rowEchDet(Matrix m, int* exchanges)
 	int i, j, k;
 	float factor = 0;
 	*exchanges = 1;
-	for (k = 0; k < c.rows - 1 && findPivot(k, c, &pivot, &pivotR); k++)
+	for (k = 0; k < c.rows - 1 && GJfindPivot(k, c, &pivot, &pivotR); k++)
 	{
 		if (pivotR != k)
 		{
@@ -493,7 +507,7 @@ void op_gaussJordan(Matrix* c, Matrix* inverse)
 {
 	int k, i, j, pivot = 0, pivotR = 0;
 	float factor = 0, norma = 1;
-	for (k = 0; k < c->rows && findPivot(k, *c, &pivot, &pivotR); k++)
+	for (k = 0; k < c->rows && GJfindPivot(k, *c, &pivot, &pivotR); k++)
 	{
 		if (pivotR != k) //if not in "top" row, exchange
 		{
@@ -551,8 +565,7 @@ Matrix identityMatrix(int rows, int columns)
 Matrix inverseMatrix(Matrix m)
 {
 	Matrix c, inverse;
-	int rank = rankMatrix(m);
-	if (rank != m.rows || rank != m.columns) { printf("\nInverse not allowed\n"); inverse= nullMatrix(); }
+	if (!fullRank(m)) { printf("\nInverse not allowed\n"); inverse = nullMatrix(); }
 	else
 	{
 		c = copyMatrix(m);
@@ -582,7 +595,7 @@ Matrix inverseMatrix(Matrix m)
 	return inverse;
 }
 
-Boolean findPivot(int start, Matrix c, int* pivot, int* pivotR)
+Boolean GJfindPivot(int start, Matrix c, int* pivot, int* pivotR)
 {
 	int i, j;
 	Boolean found = 0;
@@ -601,7 +614,7 @@ Boolean findPivot(int start, Matrix c, int* pivot, int* pivotR)
 	return found;
 }
 
-Boolean zeroRow(Row r, int dim)
+Boolean isZeroRow(Row r, int dim)
 {
 	int j;
 	Boolean zero = true;
@@ -718,12 +731,8 @@ Matrix baseChange(Matrix A, Matrix C)
 {
 	//C: baseC -> baseA
 	//C^-1: baseA -> baseC
-	int rankA = rankMatrix(A);
-	int rankC = rankMatrix(C);
 	Matrix B;
-
-	if (rankA != rankC || rankA != A.columns || rankA != A.rows
-		|| rankC != C.columns || rankC != C.rows)
+	if (!fullRank(A) || !fullRank(C))
 	{
 		printf("\nBase change not allowed\n");
 		B = nullMatrix();
@@ -732,7 +741,7 @@ Matrix baseChange(Matrix A, Matrix C)
 	{
 		Matrix C_inv = inverseMatrix(C);
 		B = matrixProd(A, C);
-		B = matrixProd(B, C_inv);
+		B = matrixProd(C_inv, B);
 		freeMatrix(C_inv);
 	}
 	return B;
@@ -745,6 +754,122 @@ Matrix nullMatrix()
 	null.rows = 0;
 	null.columns = 0;
 	return null;
+}
+
+Matrix zeroMatrix(int rows, int columns)
+{
+	Matrix zero = emptyMatrix(rows, columns);
+	if (rows == 0 && rows == columns) { zero = nullMatrix(); }
+	else
+		fillMatrix(&zero, 0);
+	return zero;
+}
+
+Vect nullVect()
+{
+	Vect null;
+	null.dim = 0;
+	null.data = NULL;
+	return null;
+}
+
+Vect copyVect(Vect v)
+{
+	Vect copy;
+	int i;
+	if (v.dim == 0 || v.data == NULL) { printf("\nCopy failed\n"); copy = nullVect(); }
+	else
+	{
+		copy = emptyVect(v.dim);
+		for (i = 0; i < v.dim; i++)
+			copy.data[i] = v.data[i];
+	}
+	return copy;
+}
+
+Vect scaleVect(Vect vector, Mel k)
+{
+	int i;
+	Vect scaled = copyVect(vector);
+	if (scaled.data == NULL) { printf("\nImpossible to scale null vector\n"); }
+	else
+	{
+		for (i = 0; i < vector.dim; i++)
+			if (vector.data[i] != 0)
+				vector.data[i] *= k;
+	}
+	return scaled;
+}
+
+int kerMatrix(Matrix m)
+{
+	int kerDim = 0;
+	if (!fullRank(m)) { kerDim = m.rows; }
+	else
+	{
+		Matrix RREF = reducedRowEch(m);
+		delZeroRows(&RREF);
+		L_EQ* equations = NULL;
+		//save equations in an array
+		equations = (L_EQ*)malloc(sizeof(L_EQ) * m.rows);
+		if (equations == NULL) { printf("\nmalloc error\n"); }
+		else
+			saveEquations(m, equations);
+
+
+		//
+
+
+
+		//also free vects in equations
+		free(equations);
+	}
+	return kerDim;
+}
+
+L_EQ extractValue(L_EQ eq)
+{
+	return eq;
+}
+
+Vect zeroVect(int dim)
+{
+	Vect zero = emptyVect(dim);
+	int i;
+	if (dim <= 0) { zero = nullVect(); }
+	else
+	{
+		for (i = 0; i < dim; i++)
+			zero.data[i] = 0;
+	}
+	return zero;
+}
+
+void saveEquations(Matrix m, L_EQ* equations)
+{
+	int i, j;
+	for (i = 0; i < m.rows; i++)
+	{
+		Vect eqValue = rowToVect(m, i);
+		L_EQ equation;
+		//find pivot == L_EQ id
+		for (j = 0; j < eqValue.dim && eqValue.data[j] == 0; j++);
+		equation.id = j;
+		equation.value = eqValue;
+		equations[i] = equation;
+	}
+}
+
+Boolean fullRank(Matrix m)
+{
+	Boolean fullR = false;
+	if (m.data == NULL || m.rows == 0 || m.columns == 0) { printf("\nNull matrix has no rank\n"); }
+	else
+	{
+		if ((rankMatrix(m) == m.rows) && m.rows == m.columns)
+			fullR = true;
+	}
+	return fullR;
 }
 
 //DEPRECATED

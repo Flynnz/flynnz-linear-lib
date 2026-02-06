@@ -35,7 +35,6 @@ int main(void)
 		printf("\nInverse:\n");
 		printMatrix(inv);
 	}
-
 	
 	freeMatrix(m);
 	freeMatrix(inv);
