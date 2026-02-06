@@ -321,7 +321,7 @@ float laplaceDetMatrix(Matrix m)
 {
 	int i = m.columns - 1;
 	float determinant = 0;
-	if (!fullRank(m)) { printf("\nDeterminant not allowed\n"); }
+	if (m.rows != m.columns) { printf("\nDeterminant not allowed\n"); }
 	else
 	{
 		if (m.rows == 1)
@@ -342,15 +342,12 @@ float detMatrix(Matrix m)
 {
 	int i, mult = 1;
 	float det = 1;
-	if (!fullRank(m)) { printf("\nDeterminant not allowed\n"); det = -1000; }
+	if (m.rows != m.columns) { printf("\nDeterminant not allowed\n"); det = -1000; }
 	else
 	{
 		Matrix reduced = rowEchDet(m, &mult);
-		if (nonZeroRows(reduced) == m.columns)
-		{
-			for (i = 0; i < m.columns; i++)
-				det *= reduced.data[i][i];
-		}
+		for (i = 0; i < m.columns; i++)
+			det *= reduced.data[i][i];
 		freeMatrix(reduced);
 		if (det != 0)
 			det = mult * det;
@@ -386,13 +383,17 @@ Boolean isRowEchelon(Matrix m)
 	//assuming that REF also means it is sorted correctly
 	Boolean itIs = true;
 	int i, j, max = -1;
-	for (i = 0; i < m.rows && itIs; i++)
+	if (nonZeroRows == 0) { itIs = true; }
+	else
 	{
-		for (j = 0; j < m.columns && m.data[i][j] == 0; j++);
-		if (j > max)
-			max = j;
-		else
-			itIs = false;
+		for (i = 0; i < m.rows && itIs; i++)
+		{
+			for (j = 0; j < m.columns && m.data[i][j] == 0; j++);
+			if (j > max)
+				max = j;
+			else
+				itIs = false;
+		}
 	}
 	return itIs;
 }
@@ -432,7 +433,7 @@ Matrix rowEchelon(Matrix m)
 			pivotR = k; //now it is in "top" row
 			for (i = k + 1; i < c.rows; i++)
 			{
-				if (c.data[pivotR][pivot] != 0)
+				if (c.data[i][pivot] != 0)
 				{
 					factor = c.data[i][pivot] / c.data[pivotR][pivot];
 					for (j = pivot; j < c.columns; j++)
