@@ -70,7 +70,7 @@ Matrix baseChange(Matrix A, Matrix C); //change base
 
 int rankMatrix(Matrix m); //determines the rank of a matrix
 
-int kerMatrix(Matrix m);
+int kerMatrix(Matrix m); //raw doggin' it, im too lazy to search up the fastest algorithm 
 
 void fillMatrix(Matrix* m, Mel n); //fill an entire matrix with a chosen element
 							
@@ -147,16 +147,23 @@ void normalizeEl(Matrix* m, int pivotR, int j, float norma); //normalize a sigle
 
 void op_gaussJordan(Matrix* c, Matrix* inverse); //performs reducedRowEch() the first, performs the same operations on the second
 												 //used for inverseMatrix()
-void clear_input(void);
+void clear_input(void); //clear the buffer
 
-void delZeroRows(Matrix* sorted);
+void delZeroRowsSorted(Matrix* sorted); //deletes zero rows (sorted matrices)
 
-void saveEquations(Matrix m, L_EQ* equations); 
+int explicitVariable(L_EQ* eq); //for linear equations, makes the chosen variable (inside *eq) explicit 
+							 //e.g. id = 'a' , value =  a + 2b+ 3c , varIsolated = false -> returns id = 'a', value = -2b - 3c, varIsolated = true
 
-void extractValue(L_EQ* eq);
+int rowsToEquations(Matrix m, L_EQ* equations); //converts a matrix's rows into "unexplicited" equations
 
-Boolean needSub_ker(int j, L_EQ* eqs);
+void rowsToEquationsEX(Matrix m, L_EQ* equations); //converts a matrix's rows into "explicited" equations
 
-Vect findEqValue(int id, L_EQ* eqs);
+Boolean isInEquations_byID(int id, L_EQ* eqs); //checks if an equation of id "j" is present in the arrary "eqs"
+
+Vect vectValue_byID(int id, L_EQ* eqs); //finds the corresponding equation by id
+
+void delRedundancyEq(L_EQ* equation, L_EQ* equations, int i); //support function to make code look prettier, not intended for user
+
+void printL_EqEX(L_EQ eq); //print a linear equation (explicited)
 
 #endif

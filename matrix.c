@@ -383,7 +383,7 @@ Boolean isRowEchelon(Matrix m)
 	//assuming that REF also means it is sorted correctly
 	Boolean itIs = true;
 	int i, j, max = -1;
-	if (nonZeroRows == 0) { itIs = true; }
+	if (nonZeroRows(m) == 0) { itIs = true; }
 	else
 	{
 		for (i = 0; i < m.rows && itIs; i++)
@@ -404,15 +404,19 @@ void normalizeEl(Matrix* m, int pivotR, int j, float norma)
 		m->data[pivotR][j] = m->data[pivotR][j] / norma;
 }
 
-void delZeroRows(Matrix* sorted)
+void delZeroRowsSorted(Matrix* sorted)
 {
 	int i;
-	for (i = 0; i < sorted->rows; i++)
+	if (!isRowEchelon(*sorted)) { printf("\nInput error, delZeroRowsSorted() only takes in REF matrices\n"); }
+	else
 	{
-		if (isZeroRow(sorted->data[i], sorted->columns))
+		for (i = 0; i < sorted->rows; i++)
 		{
-			free(sorted->data[i]);
-			sorted->rows--;
+			if (isZeroRow(sorted->data[i], sorted->columns))
+			{
+				free(sorted->data[i]);
+				sorted->rows--;
+			}
 		}
 	}
 }
@@ -818,113 +822,143 @@ Vect vectSum(Vect v1, Vect v2)
 
 int kerMatrix(Matrix m)
 {
-	int kerDim = 0, i, j;
-	if (fullRank(m)) { kerDim = m.rows; }
+	int kerDim = 0, i;
+	if (fullRank(m)) { kerDim = m.rows; printf("\nker = 0\n"); }
 	else
 	{
 		Matrix RREF = reducedRowEch(m);
-		delZeroRows(&RREF);
+		delZeroRowsSorted(&RREF);
 		L_EQ* equations = NULL;
-		//save equations in an array
 		equations = (L_EQ*)malloc(sizeof(L_EQ) * RREF.rows);
 		if (equations == NULL) { printf("\nmalloc error\n"); }
 		else
 		{
-			saveEquations(RREF, equations);
-			/////
-			
-			printf("\nEquations:\n");
-			for (i = 0; i < RREF.rows; i++)
-			{
-				printf("%d: |", i + 1);
-				for (j = 0; j < RREF.columns; j++)
-				{
-					printf("%f ", equations[i].value.data[j]);
-				}
-				printf("|\n\n");
-			}
-			
-			/////
-			for (i = RREF.rows - 1; i << RREF.rows >= 0; i--)
-			{
-				for (j = equations[i].value.dim - 1; j >= 0 ; j--)
-				{
-					if (equations[i].value.data[j] != 0 && needSub_ker(j, equations))
-					{
-						Vect toFree = equations[i].value;
-						Vect toSum = findEqValue(j, equations);
-						equations[i].value = scaleVect(equations[i].value, equations[i].value.data[j]);
-						freeVect(toFree);
-						toFree = equations[i].value;
-						equations[i].value = vectSum(toSum, equations[i].value);
-						freeVect(toFree);
-						equations[i].value.data[j] = 0;
-					}
-				}
-			}
-			for (i = 0; i < RREF.rows; i++)
-			{
-				printf("%d: |", i + 1);
-				for (j = 0; j < m.columns; j++)
-				{
-					printf("%c = ", (char)(equations[i].id + 97));
-					printf("%f ", equations[i].value.data[j]);
-				}
-				printf("|");
-			}
-		}
+			rowsToEquationsEX(RREF, equations);
+			for (i = RREF.rows - 1; i >= 0; i--) //for every saved equation
+				delRedundancyEq(&equations[i], equations, i);
 
-		//also free vects in equations
-		free(equations);
+			for (i = 0; i < RREF.rows; i++)
+			{
+				printf("%d: [ ", i + 1);
+				printL_EqEX(equations[i]);
+				printf(" ]\n");
+			} //Reminder: still missing free variables
+			for (i = 0; i < RREF.rows; i++) //problems, DOUBLE check and free every vector correctly
+				freeVect(equations[i].value);
+			free(equations);
+		}
+		freeMatrix(RREF);
 	}
 	return kerDim;
 }
 
-Vect findEqValue(int id, L_EQ* eqs)
+void printL_EqEX(L_EQ eq)
+{
+	int j;
+	if (isZeroRow(eq.value.data, eq.value.dim))
+	{
+		printf("%c = 0", (char)(eq.id + 97));
+	}
+	else
+	{
+		for (j = eq.id; j < eq.value.dim; j++)
+		{
+			if (j == eq.id)
+				printf("%c = ", (char)(eq.id + 97));
+			if (eq.value.data[j] < 0)
+			{
+				if (j < eq.value.dim)
+					printf(" - ");
+				printf("%.1f%c", -eq.value.data[j], (char)(j + 97));
+			}
+			if (eq.value.data[j] > 0)
+			{
+				if (j < eq.value.dim)
+					printf(" + ");
+				printf("%.1f%c", eq.value.data[j], (char)(j + 97));
+			}
+			
+		}
+	}
+}
+
+void delRedundancyEq(L_EQ* equation, L_EQ* equations, int i)
+{
+	float scale;
+	int j;
+	Vect to_sum, scaled, modified;
+	for (j = equation->value.dim - 1; j > equation->id; j--) //for every entry of the equation
+	{
+		if (equation->value.data[j] != 0 && isInEquations_byID(j, equations))
+		{
+			scale = equation->value.data[j];
+			to_sum = vectValue_byID(j, equations);
+			if (scale != 0 && scale != 1)
+			{
+				scaled = scaleVect(to_sum, scale);
+				modified = vectSum(scaled, equation->value);
+				freeVect(scaled);
+			}
+			else
+				modified = vectSum(to_sum, equation->value);
+			equation->value = modified;
+			equation->value.data[j] = 0;
+			freeVect(to_sum);
+		}
+	}
+}
+
+Vect vectValue_byID(int id, L_EQ* eqs)
 {
 	int i;
 	Boolean found = false;
 	Vect result;
-	result = nullVect();
+	result = emptyVect(eqs->value.dim);
 	for (i = 0; i < eqs->value.dim && !found; i++)
 		if (id == eqs[i].id)
 		{
 			found = true;
-			result = eqs[i].value;
+			result = copyVect(eqs[i].value);
 		}
 	return result;
 }
 
-Boolean needSub_ker(int j, L_EQ* eqs)
+Boolean isInEquations_byID(int id, L_EQ* eqs)
 {
 	int i;
 	Boolean need = false;
 	for (i = 0; i < eqs->value.dim && !need; i++)
-		if (j == eqs[i].id)
+		if (id == eqs[i].id)
 			need = true;
 	return need;
 }
 
-void extractValue(L_EQ* eq)
+int explicitVariable(L_EQ* eq)
 {
-	Vect zero = zeroVect(eq->value.dim);
-	Vect toFree = zero;
-	zero = vectSum(zero, eq->value);
-	freeVect(toFree);
-	zero.data[eq->id] = 0;
-	toFree = zero;
-	zero = scaleVect(zero, -1);
-	freeVect(toFree);
-	eq->id = eq->id;
-	eq->value = zero;
-	eq->varIsolated = true;
+	int code;
+	if (eq->id < 0 || isZeroRow(eq->value.data, eq->value.dim)) { code = 0; }
+	else
+	{
+		Vect value = copyVect(eq->value), trueValue;
+		float factor = -1;
+		value.data[eq->id] = 0;
+		if (eq->value.data[eq->id] != 0 && eq->value.data[eq->id] != 1)
+			factor *= (1 / eq->value.data[eq->id]);
+		trueValue = scaleVect(value, factor);
+		freeVect(value);
+		freeVect(eq->value);
+		eq->value = trueValue;
+		eq->varIsolated = true;
+		code = 1;
+	}
+	return code;
 }
 
 Vect zeroVect(int dim)
 {
 	Vect zero = emptyVect(dim);
 	int i;
-	if (dim <= 0) { zero = nullVect(); }
+	if (dim < 0) { zero = nullVect(); }
 	else
 	{
 		for (i = 0; i < dim; i++)
@@ -933,20 +967,49 @@ Vect zeroVect(int dim)
 	return zero;
 }
 
-void saveEquations(Matrix m, L_EQ* equations)
+int rowsToEquations(Matrix m, L_EQ* equations)
+{
+	int i = 0, j;
+	if (m.data == NULL || m.rows == 0 || m.columns == 0
+		|| equations->value.dim == 0)
+		printf("\nInvalid inputs\n");
+	else
+	{
+		for (i = 0; i < m.rows; i++)
+		{
+			Vect eqValue = rowToVect(m, i);
+			L_EQ equation;
+			//find pivot == L_EQ -> int id;
+			for (j = 0; j < eqValue.dim && eqValue.data[j] == 0; j++);
+			equation.id = j;
+			equation.value = eqValue;
+			equation.varIsolated = false;
+			equations[i] = equation;
+		}
+	}
+	return i;
+}
+
+void rowsToEquationsEX(Matrix m, L_EQ* equations)
 {
 	int i, j;
-	for (i = 0; i < m.rows; i++)
+	if (m.data == NULL || m.rows == 0 || m.columns == 0
+		|| equations->value.dim == 0)
+		printf("\nInvalid inputs\n");
+	else
 	{
-		Vect eqValue = rowToVect(m, i);
-		L_EQ equation;
-		//find pivot == L_EQ -> int id;
-		for (j = 0; j < eqValue.dim && eqValue.data[j] == 0; j++);
-		equation.id = j;
-		equation.value = eqValue;
-		equation.varIsolated = false;
-		extractValue(&equation);
-		equations[i] = equation;
+		for (i = 0; i < m.rows; i++)
+		{
+			Vect eqValue = rowToVect(m, i);
+			L_EQ equation;
+			//find pivot == L_EQ -> int id;
+			for (j = 0; j < eqValue.dim && eqValue.data[j] == 0; j++);
+			equation.id = j;
+			equation.value = eqValue;
+			equation.varIsolated = false;
+			explicitVariable(&equation);
+			equations[i] = equation;
+		}
 	}
 }
 
@@ -1022,4 +1085,27 @@ Matrix bruteRowEch(Matrix m)
 	}
 	return copy;
 }
+
+				float scale;
+				int j;
+				Vect to_sum, scaled, modified;
+				for (j = equations[i].value.dim - 1; j >= 0; j--) //for every entry of the equation
+				{
+					if (equations[i].value.data[j] != 0 && isInEquations_byID(j, equations))
+					{
+						scale = equations[i].value.data[j];
+						to_sum = vectValue_byID(j, equations);
+						if (scale != 0 && scale != 1)
+						{
+							scaled = scaleVect(to_sum, scale);
+							modified = vectSum(scaled, equations[i].value);
+							freeVect(scaled);
+						}
+						else
+							modified = vectSum(to_sum, equations[i].value);
+						//freeVect(to_sum);
+						equations[i].value = modified;
+						equations[i].value.data[j] = 0;
+					}
+				}
 */
