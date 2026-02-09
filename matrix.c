@@ -321,7 +321,7 @@ float laplaceDetMatrix(Matrix m)
 {
 	int i = m.columns - 1;
 	float determinant = 0;
-	if (m.rows != m.columns) { printf("\nDeterminant not allowed\n"); }
+	if (!fullRank(m)) { determinant = 0; }
 	else
 	{
 		if (m.rows == 1)
@@ -342,7 +342,7 @@ float detMatrix(Matrix m)
 {
 	int i, mult = 1;
 	float det = 1;
-	if (m.rows != m.columns) { printf("\nDeterminant not allowed\n"); det = -1000; }
+	if (!fullRank(m)) { det = 0; }
 	else
 	{
 		Matrix reduced = rowEchDet(m, &mult);
@@ -391,7 +391,7 @@ Boolean isRowEchelon(Matrix m)
 			for (j = 0; j < m.columns && m.data[i][j] == 0; j++);
 			if (j > max)
 				max = j;
-			else
+			else if (!isZeroRow(m.data[i], m.columns))
 				itIs = false;
 		}
 	}
@@ -406,11 +406,12 @@ void normalizeEl(Matrix* m, int pivotR, int j, float norma)
 
 void delZeroRowsSorted(Matrix* sorted)
 {
-	int i;
-	if (!isRowEchelon(*sorted)) { printf("\nInput error, delZeroRowsSorted() only takes in REF matrices\n"); }
+	int i, dim;
+	dim = sorted->rows;
+	if (!isSorted(*sorted)) { printf("\nInput error, delZeroRowsSorted() only takes in sorted matrices\n"); }
 	else
 	{
-		for (i = 0; i < sorted->rows; i++)
+		for (i = 0; i < dim; i++)
 		{
 			if (isZeroRow(sorted->data[i], sorted->columns))
 			{
@@ -419,6 +420,18 @@ void delZeroRowsSorted(Matrix* sorted)
 			}
 		}
 	}
+}
+
+Boolean isSorted(Matrix m)
+{
+	int i, rank = rankMatrix(m);
+	Boolean sorted = true;
+	for (i = 0; i < m.rows && sorted ; i++)
+	{
+		if (isZeroRow(m.data[i], m.columns) && i < rank)
+			sorted = false;
+	}
+	return sorted;
 }
 
 Matrix rowEchelon(Matrix m)
@@ -567,10 +580,28 @@ Matrix identityMatrix(int rows, int columns)
 	return identity;
 }
 
+Matrix extra_identityMatrix(int rows, int columns)
+{
+	Matrix identity = emptyMatrix(rows, columns);
+	int i, j;
+
+	for (i = 0; i < identity.rows; i++)
+	{
+		for (j = 0; j < identity.columns; j++)
+		{
+			if (i != j)
+				identity.data[i][j] = 0;
+			else
+				identity.data[i][j] = 1;
+		}
+	}
+	return identity;
+}
+
 Matrix inverseMatrix(Matrix m)
 {
 	Matrix c, inverse;
-	if (!fullRank(m)) { printf("\nInverse not allowed\n"); inverse = nullMatrix(); }
+	if (m.columns != m.rows || !fullRank(m)) { printf("\nInverse not allowed, this function only takes in full rank square matrices\n"); inverse = nullMatrix(); }
 	else
 	{
 		c = copyMatrix(m);
@@ -823,31 +854,35 @@ Vect vectSum(Vect v1, Vect v2)
 int kerMatrix(Matrix m)
 {
 	int kerDim = 0, i;
-	if (fullRank(m)) { kerDim = m.rows; printf("\nker = 0\n"); }
+	if (fullRank(m)) { kerDim = m.rows; printf("\nTrivial kernel\n"); }
 	else
 	{
 		Matrix RREF = reducedRowEch(m);
 		delZeroRowsSorted(&RREF);
-		L_EQ* equations = NULL;
-		equations = (L_EQ*)malloc(sizeof(L_EQ) * RREF.rows);
-		if (equations == NULL) { printf("\nmalloc error\n"); }
+		if (fullRank(RREF) && RREF.rows == RREF.columns) { kerDim = m.rows; printf("\nTrivial kernel\n"); }
 		else
 		{
-			rowsToEquationsEX(RREF, equations);
-			for (i = RREF.rows - 1; i >= 0; i--) //for every saved equation
-				delRedundancyEq(&equations[i], equations, i);
-
-			for (i = 0; i < RREF.rows; i++)
+			L_EQ* equations = NULL;
+			equations = (L_EQ*)malloc(sizeof(L_EQ) * RREF.rows);
+			if (equations == NULL) { printf("\nmalloc error\n"); }
+			else
 			{
-				printf("%d: [ ", i + 1);
-				printL_EqEX(equations[i]);
-				printf(" ]\n");
-			} //Reminder: still missing free variables
-			for (i = 0; i < RREF.rows; i++) //problems, DOUBLE check and free every vector correctly
-				freeVect(equations[i].value);
-			free(equations);
+				rowsToEquationsEX(RREF, equations);
+				for (i = RREF.rows - 1; i >= 0; i--) //for every saved equation
+					delRedundancyEq(&equations[i], equations, i);
+
+				for (i = 0; i < RREF.rows; i++)
+				{
+					printf("%d: [ ", i + 1);
+					printL_EqEX(equations[i]);
+					printf(" ]\n");
+				} //Reminder: still missing free variables
+				for (i = 0; i < RREF.rows; i++) //problems, DOUBLE check and free every vector correctly
+					freeVect(equations[i].value);
+				free(equations);
+			}
+			freeMatrix(RREF);
 		}
-		freeMatrix(RREF);
 	}
 	return kerDim;
 }
@@ -1019,8 +1054,11 @@ Boolean fullRank(Matrix m)
 	if (m.data == NULL || m.rows == 0 || m.columns == 0) { printf("\nNull matrix has no rank\n"); }
 	else
 	{
-		if ((rankMatrix(m) == m.rows) && m.rows == m.columns)
+		Matrix reduced = rowEchelon(m);
+		delZeroRowsSorted(&reduced);
+		if ((rankMatrix(reduced) == reduced.rows) && reduced.rows == reduced.columns)
 			fullR = true;
+		freeMatrix(reduced);
 	}
 	return fullR;
 }

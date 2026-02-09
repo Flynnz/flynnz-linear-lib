@@ -70,6 +70,8 @@ Matrix baseChange(Matrix A, Matrix C); //change base
 
 int rankMatrix(Matrix m); //determines the rank of a matrix
 
+Boolean isSorted(Matrix m);
+
 int kerMatrix(Matrix m); //raw doggin' it, im too lazy to search up the fastest algorithm 
 
 void fillMatrix(Matrix* m, Mel n); //fill an entire matrix with a chosen element
@@ -165,5 +167,7 @@ Vect vectValue_byID(int id, L_EQ* eqs); //finds the corresponding equation by id
 void delRedundancyEq(L_EQ* equation, L_EQ* equations, int i); //support function to make code look prettier, not intended for user
 
 void printL_EqEX(L_EQ eq); //print a linear equation (explicited)
+
+Matrix extra_identityMatrix(int rows, int columns); //identityMatrix algorythm but allows any number of rows and columns
 
 #endif
