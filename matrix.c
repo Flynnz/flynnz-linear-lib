@@ -854,12 +854,12 @@ Vect vectSum(Vect v1, Vect v2)
 int kerMatrix(Matrix m)
 {
 	int kerDim = 0, i;
-	if (fullRank(m)) { kerDim = m.rows; printf("\nTrivial kernel\n"); }
+	if (fullRank(m)) { printf("\nTrivial kernel\n"); }
 	else
 	{
 		Matrix RREF = reducedRowEch(m);
 		delZeroRowsSorted(&RREF);
-		if (fullRank(RREF) && RREF.rows == RREF.columns) { kerDim = m.rows; printf("\nTrivial kernel\n"); }
+		if (fullRank(RREF) && RREF.rows == RREF.columns) { printf("\nTrivial kernel\n"); }
 		else
 		{
 			L_EQ* equations = NULL;
@@ -876,12 +876,13 @@ int kerMatrix(Matrix m)
 					printf("%d: [ ", i + 1);
 					printL_EqEX(equations[i]);
 					printf(" ]\n");
-				} //Reminder: still missing free variables
-				for (i = 0; i < RREF.rows; i++) //problems, DOUBLE check and free every vector correctly
+				} //Reminder: missing free variables
+				for (i = 0; i < RREF.rows; i++) //DOUBLE check and free every vector correctly
 					freeVect(equations[i].value);
 				free(equations);
 			}
 			freeMatrix(RREF);
+			kerDim = m.columns - RREF.rows;
 		}
 	}
 	return kerDim;
@@ -954,8 +955,6 @@ Vect vectValue_byID(int id, L_EQ* eqs, int dim)
 		{
 			found = true;
 			result = copyVect(eqs[i].value);
-			printf("\nVettore trovato:\n");
-			printVect(result);
 		}
 	return result;
 }

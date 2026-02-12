@@ -36,8 +36,11 @@ int main(void)
 		printMatrix(inv);
 	}
 
+	int dimKer = 0;
 	printf("\nker:\n");
-	kerMatrix(m);
+	dimKer = kerMatrix(m);
+
+	printf("\nDimensione ker: %d\n", dimKer);
 	
 	freeMatrix(m);
 	freeMatrix(inv);
