@@ -36,7 +36,7 @@ int main(void)
 		printMatrix(inv);
 	}
 
-	printf("\nker?\n");
+	printf("\nker:\n");
 	kerMatrix(m);
 	
 	freeMatrix(m);

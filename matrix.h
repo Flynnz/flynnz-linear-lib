@@ -160,11 +160,11 @@ int rowsToEquations(Matrix m, L_EQ* equations); //converts a matrix's rows into 
 
 void rowsToEquationsEX(Matrix m, L_EQ* equations); //converts a matrix's rows into "explicited" equations
 
-Boolean isInEquations_byID(int id, L_EQ* eqs); //checks if an equation of id "j" is present in the arrary "eqs"
+Boolean isInEquations_byID(int id, L_EQ* eqs, int dim); //checks if an equation of id "j" is present in the arrary "eqs"
 
-Vect vectValue_byID(int id, L_EQ* eqs); //finds the corresponding equation by id
+Vect vectValue_byID(int id, L_EQ* eqs, int dim); //finds the corresponding equation by id
 
-void delRedundancyEq(L_EQ* equation, L_EQ* equations, int i); //support function to make code look prettier, not intended for user
+void delRedundancyEq(L_EQ* equation, L_EQ* equations, int i, int dim); //support function to make code look prettier, not intended for user
 
 void printL_EqEX(L_EQ eq); //print a linear equation (explicited)
 

@@ -869,7 +869,7 @@ int kerMatrix(Matrix m)
 			{
 				rowsToEquationsEX(RREF, equations);
 				for (i = RREF.rows - 1; i >= 0; i--) //for every saved equation
-					delRedundancyEq(&equations[i], equations, i);
+					delRedundancyEq(&equations[i], equations, i, RREF.rows);
 
 				for (i = 0; i < RREF.rows; i++)
 				{
@@ -917,17 +917,17 @@ void printL_EqEX(L_EQ eq)
 	}
 }
 
-void delRedundancyEq(L_EQ* equation, L_EQ* equations, int i)
+void delRedundancyEq(L_EQ* equation, L_EQ* equations, int i, int dim)
 {
 	float scale;
 	int j;
 	Vect to_sum, scaled, modified;
 	for (j = equation->value.dim - 1; j > equation->id; j--) //for every entry of the equation
 	{
-		if (equation->value.data[j] != 0 && isInEquations_byID(j, equations))
+		if (equation->value.data[j] != 0 && isInEquations_byID(j, equations, dim))
 		{
 			scale = equation->value.data[j];
-			to_sum = vectValue_byID(j, equations);
+			to_sum = vectValue_byID(j, equations, dim);
 			if (scale != 0 && scale != 1)
 			{
 				scaled = scaleVect(to_sum, scale);
@@ -943,26 +943,28 @@ void delRedundancyEq(L_EQ* equation, L_EQ* equations, int i)
 	}
 }
 
-Vect vectValue_byID(int id, L_EQ* eqs)
+Vect vectValue_byID(int id, L_EQ* eqs, int dim)
 {
 	int i;
 	Boolean found = false;
 	Vect result;
 	result = emptyVect(eqs->value.dim);
-	for (i = 0; i < eqs->value.dim && !found; i++)
+	for (i = 0; i < dim && !found; i++)
 		if (id == eqs[i].id)
 		{
 			found = true;
 			result = copyVect(eqs[i].value);
+			printf("\nVettore trovato:\n");
+			printVect(result);
 		}
 	return result;
 }
 
-Boolean isInEquations_byID(int id, L_EQ* eqs)
+Boolean isInEquations_byID(int id, L_EQ* eqs, int dim)
 {
 	int i;
 	Boolean need = false;
-	for (i = 0; i < eqs->value.dim && !need; i++)
+	for (i = 0; i < dim && !need; i++)
 		if (id == eqs[i].id)
 			need = true;
 	return need;
