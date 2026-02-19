@@ -87,6 +87,7 @@ Vect rowToVect(Matrix m, int Row);
 Vect columnToVect(Matrix m, int column);
 
 -----------------------------------------------------------MISC-----------------------------------------------------------------
+
 Boolean isRowEchelon(Matrix m); //yup
 
 void exchangeRows(Row* a, Row* b); //exchange two rows
