@@ -2,6 +2,9 @@
 
 int main(void)
 {
+
+	// vvv For a rapid showcase of the library's functionalities vvv
+
 	Matrix m = inputMatrix();
 	printf("\nMatrix created successfully:\n");
 	printMatrix(m);
@@ -35,15 +38,13 @@ int main(void)
 		printf("\nInverse:\n");
 		printMatrix(inv);
 	}
-
-	int dimKer = 0;
-	printf("\nker:\n");
-	dimKer = kerMatrix(m);
-
-	printf("\nDimensione ker: %d\n", dimKer);
 	
+	printf("\nker:\n");
+	printKerMatrix(m);
+
 	freeMatrix(m);
 	freeMatrix(inv);
 	freeMatrix(RREF);
+
 	return 0;
 }

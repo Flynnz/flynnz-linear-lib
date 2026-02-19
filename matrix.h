@@ -60,6 +60,8 @@ Matrix identityMatrix(int rows, int columns); //returns an identity matrix of a 
 
 Matrix zeroMatrix(int rows, int columns); //0 matrix of chosen size
 
+Boolean isZeroMatrix(Matrix m); //is it a zero matrix?
+
 Matrix matrixSum(Matrix m1, Matrix m2); 
 										//matrix sum
 Matrix matrixSub(Matrix m1, Matrix m2);
@@ -72,7 +74,8 @@ int rankMatrix(Matrix m); //determines the rank of a matrix
 
 Boolean isSorted(Matrix m);
 
-int kerMatrix(Matrix m); //raw doggin' it, im too lazy to search up the fastest algorithm 
+void printKerMatrix(Matrix m); //raw doggin' it, im too lazy to search up the fastest algorithm, this should find all the equations that
+							   //define the kernel and print them
 
 void fillMatrix(Matrix* m, Mel n); //fill an entire matrix with a chosen element
 							
@@ -167,6 +170,8 @@ Vect vectValue_byID(int id, L_EQ* eqs, int dim); //finds the corresponding equat
 void delRedundancyEq(L_EQ* equation, L_EQ* equations, int i, int dim); //support function to make code look prettier, not intended for user
 
 void printL_EqEX(L_EQ eq); //print a linear equation (explicited)
+
+void printL_EqsEX(L_EQ* eqs, int rows); //same as above but an array of equations
 
 Matrix extra_identityMatrix(int rows, int columns); //identityMatrix algorythm but allows any number of rows and columns
 

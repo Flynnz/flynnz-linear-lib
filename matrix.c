@@ -35,7 +35,7 @@ void clear_input(void)
 Matrix inputMatrix()
 {
 	int i = 0, j, rows = 0, cols = 0, scanned = 0;;
-	printf("\nCreating matrix...");
+	printf("Creating matrix...");
 	printf("\nHow many rows? ");
 	while (rows <= 0 || scanned < 1)
 	{
@@ -851,10 +851,19 @@ Vect vectSum(Vect v1, Vect v2)
 	return sum;
 }
 
-int kerMatrix(Matrix m)
+Boolean isZeroMatrix(Matrix m)
 {
-	int kerDim = 0, i;
-	if (fullRank(m)) { printf("\nTrivial kernel\n"); }
+	int i;
+	Boolean ex = false;
+	for (i = 0; i < m.rows && !ex; i++)
+		ex = !isZeroRow(m.data[i], m.rows);
+	return !ex;
+}
+
+void printKerMatrix(Matrix m)
+{
+	int i;
+	if (fullRank(m) || isZeroMatrix(m)) { printf("\nTrivial kernel\n"); }
 	else
 	{
 		Matrix RREF = reducedRowEch(m);
@@ -871,21 +880,27 @@ int kerMatrix(Matrix m)
 				for (i = RREF.rows - 1; i >= 0; i--) //for every saved equation
 					delRedundancyEq(&equations[i], equations, i, RREF.rows);
 
-				for (i = 0; i < RREF.rows; i++)
-				{
-					printf("%d: [ ", i + 1);
-					printL_EqEX(equations[i]);
-					printf(" ]\n");
-				} //Reminder: missing free variables
+				printL_EqsEX(equations, RREF.rows);
+
 				for (i = 0; i < RREF.rows; i++) //DOUBLE check and free every vector correctly
 					freeVect(equations[i].value);
 				free(equations);
 			}
 			freeMatrix(RREF);
-			kerDim = m.columns - RREF.rows;
+			//doesn't find free and null variables, i'll leave them to the user to find as an exercise
 		}
 	}
-	return kerDim;
+}
+
+void printL_EqsEX(L_EQ* eqs, int rows)
+{
+	int i;
+	for (i = 0; i < rows; i++)
+	{
+		printf("%d: [ ", i + 1);
+		printL_EqEX(eqs[i]);
+		printf(" ]\n");
+	}
 }
 
 void printL_EqEX(L_EQ eq)
