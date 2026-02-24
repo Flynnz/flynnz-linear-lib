@@ -1,10 +1,50 @@
 #include "matrix.h"
+#include "assert.h"
 
+#define N_ELEMENTS 9
 int main(void)
 {
 
+	//debug
+
+	//sameMatrices
+	const int rows = 3;
+	const int cols = 3;
+
+	Matrix randomMatrix, m2;
+	randomMatrix = emptyMatrix(rows, cols);
+	m2 = emptyMatrix(rows, cols);
+
+	mel randomMatrixArray[N_ELEMENTS] = { 1,2,3,4,5,6,7,8,9 };
+	mel identityArray[N_ELEMENTS] = { 1,0,0,0,1,0,0,0,1 };
+
+	defineMatrix(&randomMatrix, randomMatrixArray, N_ELEMENTS);
+	defineMatrix(&m2, randomMatrixArray, N_ELEMENTS);
+
+	assert(sameMatrices(randomMatrix, m2));
+	
+	Matrix identity = identityMatrix(rows, cols);
+
+	//change defineMatrix so it returns a matrix directly
+	Matrix manualIdentity = emptyMatrix(rows, cols);
+	defineMatrix(&manualIdentity, identityArray, N_ELEMENTS);
+
+	assert(sameMatrices(identity, manualIdentity));
+
+
+
+
+
+
+
+
+
+
+
+
 	// vvv For a rapid showcase of the library's functionalities vvv
 
+	/*
 	Matrix m = inputMatrix();
 	printf("\nMatrix created successfully:\n");
 	printMatrix(m);
@@ -46,7 +86,6 @@ int main(void)
 	freeMatrix(inv);
 	freeMatrix(RREF);
 
+	*/
 	return 0;
 }
-
-//"uwa uwa"

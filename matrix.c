@@ -1,6 +1,23 @@
 #include "matrix.h"
-#include "assert.h"
 
+Boolean sameMatrices(Matrix m1, Matrix m2)
+{
+	if (m1.rows != m2.rows || m1.cols != m2.cols)
+		return false;
+	else
+	{
+		int i, j;
+		for (i = 0; i < m1.rows; i++)
+		{
+			for (j = 0; j < m1.cols; j++)
+			{
+				if (m1.data[j][i] != m2.data[j][i])
+					return false;
+			}
+		}
+		return true;
+	}
+}
 
 Matrix emptyMatrix(int rows, int columns)
 {
@@ -11,20 +28,38 @@ Matrix emptyMatrix(int rows, int columns)
 	else
 	{
 		final.rows = rows;
-		final.columns = columns;
+		final.cols = columns;
 		for (i = 0; final.data != NULL && i < rows; i++)
 		{
-			final.data[i] = (Row)malloc(sizeof(Mel) * columns);
+			final.data[i] = (Row)malloc(sizeof(mel) * columns);
 			if (final.data[i] == NULL) { printf("\nRow n.%d creation error\n", i); }
 		}
 	}
 	return final;
 }
 
-void matrixAddRow(Matrix* empty, Row rowToInsert, int rowToChange)
+void defineMatrix(Matrix* m, mel arr[], int melSize)
+{
+	if (m->rows * m->cols != melSize)
+		printf("\nIncompatible matrix size for defineMatrix\n");
+	else
+	{
+		int i, j, k = 0;
+		for (i = 0; i < m->rows; i++)
+		{
+			for (j = 0; j < m->cols; j++)
+			{
+				m->data[i][j] = arr[k];
+				k++;
+			}
+		}
+	}
+}
+
+void matrixChangeRow(Matrix* empty, Row rowToInsert, int rowToChange)
 {
 	int i;
-	for (i = 0; i < empty->columns; i++)
+	for (i = 0; i < empty->cols; i++)
 		empty->data[rowToChange][i] = rowToInsert[i];
 }
 
@@ -74,7 +109,7 @@ Matrix inputMatrix()
 	while (i < empty.rows)
 	{
 		printf("\nInsert row n.%d\n", i + 1);
-		for (j = 0; j < empty.columns; j++)
+		for (j = 0; j < empty.cols; j++)
 		{
 			scanned = 0;
 			while (scanned < 1)
@@ -95,14 +130,14 @@ Matrix inputMatrix()
 int printMatrix(Matrix m)
 {
 	int i, j, k = 0;
-	if (m.data == NULL || m.rows == 0 || m.columns == 0)
+	if (m.data == NULL || m.rows == 0 || m.cols == 0)
 		printf("\nNULL\n");
 	else
 	{
 		for (i = 0; i < m.rows; i++)
 		{
 			printf("|");
-			for (j = 0; j < m.columns; j++)
+			for (j = 0; j < m.cols; j++)
 			{
 				if (m.data[i][j] >= 10.0 || (m.data[i][j] < 0.0 && m.data[i][j] > -10.0))
 					printf("  %.2f", m.data[i][j]);
@@ -133,15 +168,15 @@ Matrix matrixSum(Matrix m1, Matrix m2)
 {
 	Matrix result = nullMatrix();
 	int i, j;
-	if ((m1.rows != m2.rows) || (m1.columns != m2.columns))
+	if ((m1.rows != m2.rows) || (m1.cols != m2.cols))
 		printf("\n!Incompatible matrices!\n");
 	else
 	{
-		result = emptyMatrix(m1.rows, m1.columns);
+		result = emptyMatrix(m1.rows, m1.cols);
 		if (result.data == NULL) { printf("\nMatrix creation error\n"); }
 		else
 			for (i = 0; i < m1.rows; i++)
-				for (j = 0; j < m1.columns; j++)
+				for (j = 0; j < m1.cols; j++)
 					result.data[i][j] = m1.data[i][j] + m2.data[i][j];
 	}
 	return result;
@@ -151,15 +186,15 @@ Matrix matrixSub(Matrix m1, Matrix m2)
 {
 	Matrix result = nullMatrix();
 	int i, j;
-	if ((m1.rows != m2.rows) || (m1.columns != m2.columns))
+	if ((m1.rows != m2.rows) || (m1.cols != m2.cols))
 		printf("\n!Incompatible matrices!\n");
 	else
 	{
-		result = emptyMatrix(m1.rows, m1.columns);
+		result = emptyMatrix(m1.rows, m1.cols);
 		if (result.data == NULL) { printf("\nMatrix creation error\n"); }
 		else
 			for (i = 0; i < m1.rows; i++)
-				for (j = 0; j < m1.columns; j++)
+				for (j = 0; j < m1.cols; j++)
 					result.data[i][j] = m1.data[i][j] - m2.data[i][j];
 	}
 	return result;
@@ -168,7 +203,7 @@ Matrix matrixSub(Matrix m1, Matrix m2)
 Vect emptyVect(int dim)
 {
 	Vect result;
-	result.data = (Mel*)malloc(sizeof(Mel) * dim);
+	result.data = (mel*)malloc(sizeof(mel) * dim);
 	if (result.data == NULL || dim <= 0) { printf("\nVector creation error\n"); result = nullVect(); }
 	else
 		result.dim = dim;
@@ -211,14 +246,14 @@ Vect linearApp(Vect v, Matrix m)
 	result.data = NULL;
 	result.dim = 0;
 
-	if (v.dim != m.columns) { printf("\nIncompatible application\n"); }
+	if (v.dim != m.cols) { printf("\nIncompatible application\n"); }
 	else
 	{
 		result = emptyVect(v.dim);
 		for (i = 0; i < m.rows; i++)
 		{
 			result.data[i] = 0;
-			for (j = 0; j < m.columns; j++)
+			for (j = 0; j < m.cols; j++)
 				result.data[i] += (v.data[j] * m.data[i][j]);
 		}
 	}
@@ -229,13 +264,13 @@ Matrix matrixProd(Matrix m1, Matrix m2)
 {
 	Matrix product;
 	int i, j, k;
-	if ((m1.columns != m2.rows) || (m2.columns != m1.rows)) { printf("\n!Incompatible matrices!\n"); product = nullMatrix(); }
+	if ((m1.cols != m2.rows) || (m2.cols != m1.rows)) { printf("\n!Incompatible matrices!\n"); product = nullMatrix(); }
 	else
 	{
-		product = emptyMatrix(m1.rows, m2.columns);
+		product = emptyMatrix(m1.rows, m2.cols);
 		for (i = 0; i < m1.rows; i++)
 		{
-			for (j = 0; j < m1.columns; j++)
+			for (j = 0; j < m1.cols; j++)
 			{
 				product.data[i][j] = 0;
 				for (k = 0; k < m1.rows; k++)
@@ -259,17 +294,17 @@ Vect columnToVect(Matrix m, int columnNumber)
 Vect rowToVect(Matrix m, int rowNumber)
 {
 	Vect result;
-	result = emptyVect(m.columns);
+	result = emptyVect(m.cols);
 	int i;
-	for (i = 0; i < m.columns; i++)
+	for (i = 0; i < m.cols; i++)
 		result.data[i] = m.data[rowNumber][i];
 	return result;
 }
 
-Mel scalarProd(Vect v1, Vect v2)
+mel scalarProd(Vect v1, Vect v2)
 {
 	int i;
-	Mel result = 0;
+	mel result = 0;
 
 	if (v1.dim != v2.dim) { printf("\nIncompatible vectors\n"); return -1000; }
 	else
@@ -283,12 +318,12 @@ Mel scalarProd(Vect v1, Vect v2)
 Matrix subMatrix(Matrix m, int rowToElim, int colToElim)
 {
 	int i, j, k = 0, t = 0;
-	Mel elem;
+	mel elem;
 	Matrix result;
-	if (m.rows != m.columns) { printf("\nSubmatrix not allowed\n"); result = nullMatrix(); }
+	if (m.rows != m.cols) { printf("\nSubmatrix not allowed\n"); result = nullMatrix(); }
 	else
 	{
-		result = emptyMatrix(m.rows - 1, m.columns - 1);
+		result = emptyMatrix(m.rows - 1, m.cols - 1);
 		for (i = 0; i < m.rows; i++)
 		{
 			for (j = 0; j < m.rows; j++)
@@ -304,14 +339,14 @@ Matrix subMatrix(Matrix m, int rowToElim, int colToElim)
 	return result;
 }
 
-void sub_matrixAdd(Matrix* m, Mel el, int* row, int* column)
+void sub_matrixAdd(Matrix* m, mel el, int* row, int* column)
 {
 	m->data[*row][*column] = el;
-	if (*column < m->columns - 1)
+	if (*column < m->cols - 1)
 		(*column)++;
 	else
 	{
-		if (*column == m->columns - 1 && *row < m->rows - 1)
+		if (*column == m->cols - 1 && *row < m->rows - 1)
 		{
 			(*row)++;
 			*column = 0;
@@ -321,7 +356,7 @@ void sub_matrixAdd(Matrix* m, Mel el, int* row, int* column)
 
 float laplaceDetMatrix(Matrix m)
 {
-	int i = m.columns - 1;
+	int i = m.cols - 1;
 	float determinant = 0;
 	if (!fullRank(m)) { determinant = 0; }
 	else
@@ -348,7 +383,7 @@ float detMatrix(Matrix m)
 	else
 	{
 		Matrix reduced = rowEchDet(m, &mult);
-		for (i = 0; i < m.columns; i++)
+		for (i = 0; i < m.cols; i++)
 			det *= reduced.data[i][i];
 		freeMatrix(reduced);
 		if (det != 0)
@@ -360,10 +395,10 @@ float detMatrix(Matrix m)
 int rankMatrix(Matrix m)
 {
 	int rank;
-	if (m.data == NULL || m.data == 0|| m.rows == 0 || m.columns == 0) { rank = 0; }
+	if (m.data == NULL || m.data == 0|| m.rows == 0 || m.cols == 0) { rank = 0; }
 	else
 	{
-		Matrix c = emptyMatrix(m.rows, m.columns);
+		Matrix c = emptyMatrix(m.rows, m.cols);
 		c = rowEchelon(m);
 		rank = nonZeroRows(c);
 		freeMatrix(c);
@@ -375,7 +410,7 @@ int nonZeroRows(Matrix m)
 {
 	int i, j = 0;
 	for (i = 0; i < m.rows; i++)
-		if (!isZeroRow(m.data[i], m.columns))
+		if (!isZeroRow(m.data[i], m.cols))
 			j++;
 	return j;
 }
@@ -390,10 +425,10 @@ Boolean isRowEchelon(Matrix m)
 	{
 		for (i = 0; i < m.rows && itIs; i++)
 		{
-			for (j = 0; j < m.columns && m.data[i][j] == 0; j++);
+			for (j = 0; j < m.cols && m.data[i][j] == 0; j++);
 			if (j > max)
 				max = j;
-			else if (!isZeroRow(m.data[i], m.columns))
+			else if (!isZeroRow(m.data[i], m.cols))
 				itIs = false;
 		}
 	}
@@ -415,7 +450,7 @@ void delZeroRowsSorted(Matrix* sorted)
 	{
 		for (i = 0; i < dim; i++)
 		{
-			if (isZeroRow(sorted->data[i], sorted->columns))
+			if (isZeroRow(sorted->data[i], sorted->cols))
 			{
 				free(sorted->data[i]);
 				sorted->rows--;
@@ -430,7 +465,7 @@ Boolean isSorted(Matrix m)
 	Boolean sorted = true;
 	for (i = 0; i < m.rows && sorted ; i++)
 	{
-		if (isZeroRow(m.data[i], m.columns) && i < rank)
+		if (isZeroRow(m.data[i], m.cols) && i < rank)
 			sorted = false;
 	}
 	return sorted;
@@ -455,7 +490,7 @@ Matrix rowEchelon(Matrix m)
 				if (c.data[i][pivot] != 0)
 				{
 					factor = c.data[i][pivot] / c.data[pivotR][pivot];
-					for (j = pivot; j < c.columns; j++)
+					for (j = pivot; j < c.cols; j++)
 						c.data[i][j] -= factor * c.data[k][j];
 				}
 			}
@@ -479,14 +514,14 @@ Matrix reducedRowEch(Matrix m)
 		//normalize pivotR after exchanging
 		norma = c.data[pivotR][pivot];
 		if (norma != 0 && norma != 1)
-			for (j = 0; j < c.columns; j++)
+			for (j = 0; j < c.cols; j++)
 				normalizeEl(&c, pivotR, j, norma);
 		for (i = k + 1; i < c.rows; i++)
 		{
 			factor = c.data[i][pivot];
 			if (factor != 0)
 			{
-				for (j = 0; j < c.columns; j++)
+				for (j = 0; j < c.cols; j++)
 					c.data[i][j] -= factor * c.data[k][j];
 			}
 
@@ -515,7 +550,7 @@ Matrix rowEchDet(Matrix m, int* exchanges)
 			factor = (c.data[i][pivot] / c.data[pivotR][pivot]);
 			if (factor != 0)
 			{
-				for (j = 0; j < c.columns; j++)
+				for (j = 0; j < c.cols; j++)
 					c.data[i][j] -= factor * c.data[k][j];
 			}
 		}
@@ -539,7 +574,7 @@ void op_gaussJordan(Matrix* c, Matrix* inverse)
 		norma = c->data[pivotR][pivot];
 		if (norma != 0 && norma != 1)
 		{
-			for (j = 0; j < c->columns; j++)
+			for (j = 0; j < c->cols; j++)
 			{
 				normalizeEl(c, pivotR, j, norma);
 				normalizeEl(inverse, pivotR, j, norma);
@@ -551,7 +586,7 @@ void op_gaussJordan(Matrix* c, Matrix* inverse)
 			factor = c->data[i][pivot];
 			if (factor != 0)
 			{
-				for (j = 0; j < c->columns; j++)
+				for (j = 0; j < c->cols; j++)
 				{
 					c->data[i][j] -= factor * c->data[k][j];
 					inverse->data[i][j] -= factor * inverse->data[k][j];
@@ -565,12 +600,12 @@ Matrix identityMatrix(int rows, int columns)
 {
 	Matrix identity = emptyMatrix(rows, columns);
 	int i, j;
-	if (identity.rows != identity.columns) { printf("\nInexistent identity matrix for non-square matrices\n"); identity = nullMatrix(); }
+	if (identity.rows != identity.cols) { printf("\nInexistent identity matrix for non-square matrices\n"); identity = nullMatrix(); }
 	else
 	{
 		for (i = 0; i < identity.rows; i++)
 		{
-			for (j = 0; j < identity.columns; j++)
+			for (j = 0; j < identity.cols; j++)
 			{
 				if (i != j)
 					identity.data[i][j] = 0;
@@ -589,7 +624,7 @@ Matrix extra_identityMatrix(int rows, int columns)
 
 	for (i = 0; i < identity.rows; i++)
 	{
-		for (j = 0; j < identity.columns; j++)
+		for (j = 0; j < identity.cols; j++)
 		{
 			if (i != j)
 				identity.data[i][j] = 0;
@@ -603,11 +638,11 @@ Matrix extra_identityMatrix(int rows, int columns)
 Matrix inverseMatrix(Matrix m)
 {
 	Matrix c, inverse;
-	if (m.columns != m.rows || !fullRank(m)) { printf("\nInverse not allowed, this function only takes in full rank square matrices\n"); inverse = nullMatrix(); }
+	if (m.cols != m.rows || !fullRank(m)) { printf("\nInverse not allowed, this function only takes in full rank square matrices\n"); inverse = nullMatrix(); }
 	else
 	{
 		c = copyMatrix(m);
-		inverse = identityMatrix(m.rows, m.columns);
+		inverse = identityMatrix(m.rows, m.cols);
 		int k, i, j;
 		float multi;
 
@@ -615,7 +650,7 @@ Matrix inverseMatrix(Matrix m)
 		op_gaussJordan(&c, &inverse);
 
 		//reduce c to Identity matrix to obtain inverse 
-		for (k = c.columns - 1; k > 0; k--)
+		for (k = c.cols - 1; k > 0; k--)
 		{
 			for (i = k; i > 0; i--)
 			{
@@ -623,7 +658,7 @@ Matrix inverseMatrix(Matrix m)
 				if (multi != 0)
 				{
 					c.data[i - 1][k] -= c.data[k][k] * multi;
-					for (j = 0; j < inverse.columns; j++)
+					for (j = 0; j < inverse.cols; j++)
 						inverse.data[i - 1][j] -= inverse.data[k][j] * multi;
 				}
 			}
@@ -637,7 +672,7 @@ Boolean GJfindPivot(int start, Matrix c, int* pivot, int* pivotR)
 {
 	int i, j;
 	Boolean found = 0;
-	for (j = start; j < c.columns; j++)
+	for (j = start; j < c.cols; j++)
 	{
 		for (i = start; i < c.rows && !found; i++)
 		{
@@ -662,26 +697,26 @@ Boolean isZeroRow(Row r, int dim)
 	return zero;
 }
 
-void fillMatrix(Matrix* m, Mel n)
+void fillMatrix(Matrix* m, mel n)
 {
 	int i, j;
 	for (i = 0; i < m->rows; i++)
 	{
-		for (j = 0; j < m->columns; j++)
+		for (j = 0; j < m->cols; j++)
 			m->data[i][j] = n;
 	}
 }
 
 Matrix copyMatrix(Matrix m)
 {
-	Matrix r = emptyMatrix(m.rows, m.columns);
+	Matrix r = emptyMatrix(m.rows, m.cols);
 	int i, j;
-	if (m.rows == 0 || m.columns == 0) { r = nullMatrix(); }
+	if (m.rows == 0 || m.cols == 0) { r = nullMatrix(); }
 	else
 	{
 		for (i = 0; i < m.rows; i++)
 		{
-			for (j = 0; j < m.columns; j++)
+			for (j = 0; j < m.cols; j++)
 				r.data[i][j] = m.data[i][j];
 		}
 	}
@@ -695,7 +730,7 @@ int MbubbleSort(Matrix v[])
 	while (n > 1 && !sorted) {
 		sorted = 1;
 		for (i = 0; i < n - 1; i++)
-			if (compareRow(v->data[i], v->data[i + 1], v->columns) > 0) 
+			if (compareRow(v->data[i], v->data[i + 1], v->cols) > 0) 
 			{
 				exchangeRows(&v->data[i], &v->data[i + 1]);
 				sorted = 0;
@@ -735,7 +770,7 @@ Boolean isTriangular(Matrix m)
 	Boolean notUpper = false;
 	Boolean notLower = false;
 
-	if (m.rows != m.columns)
+	if (m.rows != m.cols)
 		return false;
 	else
 	{
@@ -755,7 +790,7 @@ Boolean isTriangular(Matrix m)
 		// Check lower triangular
 		for (int i = 0; i < m.rows - 1 && !notLower; i++)
 		{
-			for (int j = i + 1; j < m.columns; j++)
+			for (int j = i + 1; j < m.cols; j++)
 			{
 				if (m.data[i][j] != 0)
 					notLower = true;
@@ -790,7 +825,7 @@ Matrix nullMatrix()
 	Matrix null;
 	null.data = NULL;
 	null.rows = 0;
-	null.columns = 0;
+	null.cols = 0;
 	return null;
 }
 
@@ -825,7 +860,7 @@ Vect copyVect(Vect v)
 	return copy;
 }
 
-Vect scaleVect(Vect vector, Mel k)
+Vect scaleVect(Vect vector, mel k)
 {
 	int i;
 	Vect scaled = copyVect(vector);
@@ -870,7 +905,7 @@ void printKerMatrix(Matrix m)
 	{
 		Matrix RREF = reducedRowEch(m);
 		delZeroRowsSorted(&RREF);
-		if (fullRank(RREF) && RREF.rows == RREF.columns) { printf("\nTrivial kernel\n"); }
+		if (fullRank(RREF) && RREF.rows == RREF.cols) { printf("\nTrivial kernel\n"); }
 		else
 		{
 			L_EQ* equations = NULL;
@@ -1023,7 +1058,7 @@ Vect zeroVect(int dim)
 int rowsToEquations(Matrix m, L_EQ* equations)
 {
 	int i = 0, j;
-	if (m.data == NULL || m.rows == 0 || m.columns == 0
+	if (m.data == NULL || m.rows == 0 || m.cols == 0
 		|| equations->value.dim == 0)
 		printf("\nInvalid inputs\n");
 	else
@@ -1046,7 +1081,7 @@ int rowsToEquations(Matrix m, L_EQ* equations)
 void rowsToEquationsEX(Matrix m, L_EQ* equations)
 {
 	int i, j;
-	if (m.data == NULL || m.rows == 0 || m.columns == 0
+	if (m.data == NULL || m.rows == 0 || m.cols == 0
 		|| equations->value.dim == 0)
 		printf("\nInvalid inputs\n");
 	else
@@ -1069,12 +1104,12 @@ void rowsToEquationsEX(Matrix m, L_EQ* equations)
 Boolean fullRank(Matrix m)
 {
 	Boolean fullR = false;
-	if (m.data == NULL || m.rows == 0 || m.columns == 0) { printf("\nNull matrix has no rank\n"); }
+	if (m.data == NULL || m.rows == 0 || m.cols == 0) { printf("\nNull matrix has no rank\n"); }
 	else
 	{
 		Matrix reduced = rowEchelon(m);
 		delZeroRowsSorted(&reduced);
-		if ((rankMatrix(reduced) == reduced.rows) && reduced.rows == reduced.columns)
+		if ((rankMatrix(reduced) == reduced.rows) && reduced.rows == reduced.cols)
 			fullR = true;
 		freeMatrix(reduced);
 	}
@@ -1087,12 +1122,12 @@ Boolean fullRank(Matrix m)
 void identityCreate(Matrix* empty)
 {
 	int i, j;
-	if (empty->rows!= empty->columns) { printf("\nIncompatible empty matrix format\n"); }
+	if (empty->rows!= empty->cols) { printf("\nIncompatible empty matrix format\n"); }
 	else
 	{
 		for (i = 0; i < empty->rows; i++)
 		{
-			for (j = 0; j < empty->columns; j++)
+			for (j = 0; j < empty->cols; j++)
 			{
 				if (i != j)
 					empty->data[i][j] = 0;
@@ -1114,17 +1149,17 @@ Matrix bruteRowEch(Matrix m)
 	matrixSort(&copy);
 	while (i < m.rows && !isRowEchelon(copy))
 	{
-		for (k = 0; k < copy.columns && copy.data[i][k] == 0; k++); //find pivot index
+		for (k = 0; k < copy.cols && copy.data[i][k] == 0; k++); //find pivot index
 		pivot = k;
 		pivotRow = i;
-		while (pivot != copy.columns && i < copy.rows)
+		while (pivot != copy.cols && i < copy.rows)
 		{
 			if (copy.data[i][pivot] != 0)
 			{
 				//float pivot;
 				multiplier = copy.data[i][pivot] / copy.data[pivotRow - 1][pivot];
 				//pivot = (copy.data[pivotRow - 1][pivot]);
-				for (j = 0; j < copy.columns; j++)
+				for (j = 0; j < copy.cols; j++)
 				{
 					copy.data[i][j] -= multiplier * copy.data[pivotRow - 1][j];
 					//if (copy.data[pivotRow - 1][j] != 0)
