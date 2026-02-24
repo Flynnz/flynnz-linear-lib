@@ -1,4 +1,6 @@
 #include "matrix.h"
+#include "assert.h"
+
 
 Matrix emptyMatrix(int rows, int columns)
 {

@@ -127,12 +127,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="element.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="matrix.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="element.h" />
     <ClInclude Include="matrix.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
