@@ -50,7 +50,7 @@ void freeMatrix(Matrix m); //deallocate matrix memory from heap
 
 int printMatrix(Matrix m); //yeah
 
-void defineMatrix(Matrix* m, mel arr[], int melSize); //!!!!!!!!!
+Matrix defineMatrix(mel arr[], int rows, int columns); //create a Matrix using an array defined on the stack
 
 void matrixChangeRow(Matrix* empty, Row rowToInsert, int rowToChange); //use arrays to add/modify rows of a matrix
 

@@ -38,22 +38,20 @@ Matrix emptyMatrix(int rows, int columns)
 	return final;
 }
 
-void defineMatrix(Matrix* m, mel arr[], int melSize)
+Matrix defineMatrix(mel arr[], int rows, int columns)
 {
-	if (m->rows * m->cols != melSize)
-		printf("\nIncompatible matrix size for defineMatrix\n");
-	else
+	Matrix result = emptyMatrix(rows, columns);
+
+	int i, j, k = 0;
+	for (i = 0; i < rows; i++)
 	{
-		int i, j, k = 0;
-		for (i = 0; i < m->rows; i++)
+		for (j = 0; j < columns; j++)
 		{
-			for (j = 0; j < m->cols; j++)
-			{
-				m->data[i][j] = arr[k];
-				k++;
-			}
+			result.data[i][j] = arr[k];
+			k++;
 		}
 	}
+	return result;
 }
 
 void matrixChangeRow(Matrix* empty, Row rowToInsert, int rowToChange)
