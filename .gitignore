@@ -15,6 +15,9 @@ x86/
 *.VC.db
 *.VC.opendb
 *.vs/
+*.slnx
+*.vcxproj
+*.vcxproj.filters
 
 # Compiled libraries
 *.lib
