@@ -24,4 +24,4 @@ x86/
 *.bak
 *.tmp
 *.log
-
+tests.txt
