@@ -636,7 +636,7 @@ Matrix extra_identityMatrix(int rows, int columns)
 Matrix inverseMatrix(Matrix m)
 {
 	Matrix c, inverse;
-	if (m.cols != m.rows || !fullRank(m)) { printf("\nInverse not allowed, this function only takes in full rank square matrices\n"); inverse = nullMatrix(); }
+	if (m.cols != m.rows || !fullRank(m)) { printf("\nInverse not allowed (this function only takes in full rank square matrices)\n"); inverse = nullMatrix(); }
 	else
 	{
 		c = copyMatrix(m);
@@ -955,13 +955,13 @@ void printL_EqEX(L_EQ eq)
 			{
 				if (j < eq.value.dim)
 					printf(" - ");
-				printf("%.1f%c", -eq.value.data[j], (char)(j + 97));
+				printf("%.3f%c", -eq.value.data[j], (char)(j + 97));
 			}
 			if (eq.value.data[j] > 0)
 			{
 				if (j < eq.value.dim)
 					printf(" + ");
-				printf("%.1f%c", eq.value.data[j], (char)(j + 97));
+				printf("%.3f%c", eq.value.data[j], (char)(j + 97));
 			}
 			
 		}
