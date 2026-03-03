@@ -9,23 +9,23 @@ typedef enum {
 	false, true
 }Boolean;
 
-typedef float Mel; //matrix element
+typedef float mel; //matrix element
 
-typedef Mel* Row;
+typedef mel* Row;
 
-typedef Mel* Column;
+typedef mel* Column;
 
 typedef struct vector
 {
 	int dim;
-	Mel* data;
+	mel* data;
 }Vect;
 
 typedef Row* rowArr;
 
 typedef struct matrix
 {
-	int rows, columns;
+	int rows, cols;
 	rowArr data;
 }Matrix;
 
@@ -50,7 +50,9 @@ void freeMatrix(Matrix m); //deallocate matrix memory from heap
 
 int printMatrix(Matrix m); //yeah
 
-void matrixAddRow(Matrix* empty, Row rowToInsert, int rowToChange); //use arrays to add/modify rows of a matrix
+Matrix defineMatrix(mel arr[], int rows, int columns); //create a Matrix using an array defined on the stack
+
+void matrixChangeRow(Matrix* empty, Row rowToInsert, int rowToChange); //use arrays to add/modify rows of a matrix
 
 Matrix inputMatrix(); //allows user to create matrix from stdin
 										
@@ -77,7 +79,7 @@ Boolean isSorted(Matrix m);
 void printKerMatrix(Matrix m); //raw doggin' it, im too lazy to search up the fastest algorithm, this should find all the equations that
 							   //define the kernel and print them
 
-void fillMatrix(Matrix* m, Mel n); //fill an entire matrix with a chosen element
+void fillMatrix(Matrix* m, mel n); //fill an entire matrix with a chosen element
 							
 Matrix subMatrix(Matrix m, int rowToElim, int colToElim); //create a submatrix
 
@@ -111,13 +113,13 @@ Vect copyVect(Vect v);
 
 Vect vectSum(Vect v1, Vect v2);
 
-Vect scaleVect(Vect vector, Mel k); //multply a vector by a scalar value
+Vect scaleVect(Vect vector, mel k); //multply a vector by a scalar value
 
 int printVect(Vect v); //yup
 
 Vect linearApp(Vect v, Matrix m); //matrix-vector multiplication
 
-Mel scalarProd(Vect v1, Vect v2); //scalar product between two vectors
+mel scalarProd(Vect v1, Vect v2); //scalar product between two vectors
 
 Vect rowToVect(Matrix m, int Row);
 										//converts a row/column of a matrix into a vector
@@ -142,7 +144,7 @@ Matrix rowEchDet(Matrix m, int* exchanges); //the same as rowEchelon() but it co
 											
 Boolean GJfindPivot(int start, Matrix c, int* pivot, int* pivotR); //used in REF functions to find pivot 
 																 
-void sub_matrixAdd(Matrix* m, Mel el, int* row, int* column); //adds into a matrix an element and moves forward into the matrix
+void sub_matrixAdd(Matrix* m, mel el, int* row, int* column); //adds into a matrix an element and moves forward into the matrix
 
 int MbubbleSort(Matrix v[]); 
 
@@ -174,5 +176,7 @@ void printL_EqEX(L_EQ eq); //print a linear equation (explicited)
 void printL_EqsEX(L_EQ* eqs, int rows); //same as above but an array of equations
 
 Matrix extra_identityMatrix(int rows, int columns); //identityMatrix algorythm but allows any number of rows and columns
+
+Boolean sameMatrices(Matrix m1, Matrix m2);
 
 #endif
