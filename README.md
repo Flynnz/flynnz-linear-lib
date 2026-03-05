@@ -191,7 +191,7 @@ Compute and print the equations defining the kernel of `m`.
 ```c
 int matrixSort(Matrix a[]);
 ```
-Sort an array of matrices in decreasing order.
+Sort a matrix's rows in decreasing order.
 
 ---
 
