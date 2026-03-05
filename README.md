@@ -29,7 +29,6 @@ This is a **personal learning project**. It is not optimized, not battle-tested,
 | `Column` | Pointer to a column (`mel*`) |
 | `Vect` | Vector struct — `dim` + `mel* data` |
 | `Matrix` | Matrix struct — `rows`, `cols` + `rowArr data` |
-| `L_EQ` | Linear equation struct — `id`, `Vect value`, `Boolean varIsolated` |
 
 ---
 
