@@ -55,6 +55,8 @@ Matrix defineMatrix(mel arr[], int rows, int columns); //create a Matrix using a
 void matrixChangeRow(Matrix* empty, Row rowToInsert, int rowToChange); //use arrays to add/modify rows of a matrix
 
 Matrix inputMatrix(); //allows user to create matrix from stdin
+
+Boolean sameMatrices(Matrix m1, Matrix m2);
 										
 Matrix copyMatrix(Matrix m); //returns a copy of a matrix m
 
@@ -176,7 +178,5 @@ void printL_EqEX(L_EQ eq); //print a linear equation (explicited)
 void printL_EqsEX(L_EQ* eqs, int rows); //same as above but an array of equations
 
 Matrix extra_identityMatrix(int rows, int columns); //identityMatrix algorythm but allows any number of rows and columns
-
-Boolean sameMatrices(Matrix m1, Matrix m2);
 
 #endif

@@ -15,9 +15,13 @@
 
 - `int printMatrix(Matrix m):` print matrix contents
 
-- `void matrixAddRow(Matrix* empty, Row rowToInsert, int rowToChange):` use arrays to add or modify rows of a matrix
+- `Matrix defineMatrix(mel arr[], int rows, int columns):` create a Matrix using an array defined on the stack
+
+- `void matrixChangeRow(Matrix* empty, Row rowToInsert, int rowToChange):` use arrays to add or modify rows of a matrix
 
 - `Matrix inputMatrix():` allow user to create a matrix from stdin
+
+- `Boolean sameMatrices(Matrix m1, Matrix m2):` 
 
 - `Matrix copyMatrix(Matrix m):` return a copy of matrix `m`
 
