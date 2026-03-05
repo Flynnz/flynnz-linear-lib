@@ -303,24 +303,12 @@ Swap two rows in-place.
 
 ---
 
-## 🏗️ Building & Testing
-
-Compile the library and test suite together:
-
-```bash
-gcc -o test_linalg test_linalg.c linalg.c -lm
-./test_linalg
-```
-
----
-
 ## 📁 Project Structure
 
 ```
 .
-├── linalg.h          # Type definitions & function prototypes
-├── linalg.c          # Library implementation
-└── test_linalg.c     # Assertion-based test suite
+├── matrix.h          # Type definitions & function prototypes
+└── matrix.c          # Library implementation
 ```
 
 ---
