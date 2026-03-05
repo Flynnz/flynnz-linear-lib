@@ -1,5 +1,6 @@
 #ifndef MATRIX_H
 #define MATRIX_H
+#define EPSILON 1e-4f
 
 #include "stdlib.h"
 #include "stdio.h"
@@ -35,6 +36,9 @@ typedef struct linear_equation
 	Vect value;
 	Boolean varIsolated;
 }L_EQ;
+
+/* Float equality with tolerance */
+static int feq(float a, float b) { return fabsf(a - b) < EPSILON; }
 
 //--------------------------------------------------------------------------------------------------------------------------------
 //														 FUNCTIONS

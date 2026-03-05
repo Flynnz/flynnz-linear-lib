@@ -11,7 +11,7 @@ Boolean sameMatrices(Matrix m1, Matrix m2)
 		{
 			for (j = 0; j < m1.cols; j++)
 			{
-				if (m1.data[j][i] != m2.data[j][i])
+				if (!feq(m1.data[j][i], m2.data[j][i]))
 					return false;
 			}
 		}
@@ -247,7 +247,7 @@ Vect linearApp(Vect v, Matrix m)
 	if (v.dim != m.cols) { printf("\nIncompatible application\n"); }
 	else
 	{
-		result = emptyVect(v.dim);
+		result = emptyVect(m.rows);
 		for (i = 0; i < m.rows; i++)
 		{
 			result.data[i] = 0;
@@ -262,16 +262,16 @@ Matrix matrixProd(Matrix m1, Matrix m2)
 {
 	Matrix product;
 	int i, j, k;
-	if ((m1.cols != m2.rows) || (m2.cols != m1.rows)) { printf("\n!Incompatible matrices!\n"); product = nullMatrix(); }
+	if (m1.cols != m2.rows) { printf("\n!Incompatible matrices!\n"); product = nullMatrix(); }
 	else
 	{
 		product = emptyMatrix(m1.rows, m2.cols);
 		for (i = 0; i < m1.rows; i++)
 		{
-			for (j = 0; j < m1.cols; j++)
+			for (j = 0; j < m2.cols; j++)
 			{
 				product.data[i][j] = 0;
-				for (k = 0; k < m1.rows; k++)
+				for (k = 0; k < m1.cols; k++)
 					product.data[i][j] += m1.data[i][k] * m2.data[k][j];
 			}
 		}
