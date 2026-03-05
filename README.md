@@ -303,14 +303,4 @@ Swap two rows in-place.
 
 ---
 
-## 📁 Project Structure
-
-```
-.
-├── matrix.h          # Type definitions & function prototypes
-└── matrix.c          # Library implementation
-```
-
----
-
 *Made by Flynnz — a learning project, nothing more.*
