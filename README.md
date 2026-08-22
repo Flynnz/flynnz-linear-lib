@@ -1,12 +1,12 @@
 # simple linear algebra library
 
-## features
+## 1. features
 
-- matrix (and Vector) ADT
+- matrix (and vector) ADT
 - matrix linear algebra functions
 - complex matrix operations (determinant, REF, etc..)
 
-## example of use
+## 2. example of use
 
 ```c
 #include "matrix.h"
@@ -44,7 +44,7 @@ int main()
 
 ```
 
-expected print output:
+*expected print output:*
 
 ```c
 {   1.00   0.00  -1.00   }
@@ -54,7 +54,7 @@ expected print output:
 {   1.00   2.00   0.00   }
 ```
 
-## notes
+## 3. notes
 
 - My first side project while learning C as my first programming language.
 - This is mainly a learning project, the library is not battle tested and not really
